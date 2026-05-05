@@ -52,7 +52,6 @@ def require_admin(credentials: HTTPBasicCredentials = Depends(security)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid admin credentials.",
-            headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
 
