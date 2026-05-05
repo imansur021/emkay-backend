@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Emkay Surveys</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --navy:#0b1a2e;--navy-mid:#122540;--navy-light:#1c3558;
+    --gold:#c8922a;--gold-light:#e6ad47;--white:#f8f5ef;
+    --muted:#9aacbe;--border:rgba(200,146,42,0.22);
+    --green:#2ecc71;--red:#e74c3c;--yellow:#f39c12;
+  }
+  body{font-family:'Barlow',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;}
+
+  /* ── Header ── */
+  header{
+    background:var(--navy-mid);border-bottom:1px solid var(--border);
+    padding:0 32px;height:64px;display:flex;align-items:center;
+    justify-content:space-between;position:sticky;top:0;z-index:10;
+  }
+  .header-logo{display:flex;align-items:center;gap:12px;}
+  .logo-box{
+    width:36px;height:36px;background:var(--gold);border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:var(--navy);
+  }
+  .header-logo strong{
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:14px;letter-spacing:.1em;text-transform:uppercase;
+  }
+  .header-logo span{font-size:11px;color:var(--gold);}
+  #logout-btn{
+    padding:8px 18px;background:transparent;border:1px solid var(--border);
+    color:var(--muted);font-family:'Barlow',sans-serif;font-size:12px;
+    font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    border-radius:3px;cursor:pointer;transition:border-color .2s,color .2s;
+  }
+  #logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+  /* ── Layout ── */
+  .container{max-width:1200px;margin:0 auto;padding:40px 32px;}
+
+  /* ── Stats bar ── */
+  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:36px;}
+  .stat-card{
+    background:var(--navy-mid);border:1px solid var(--border);
+    border-radius:6px;padding:24px 28px;
+  }
+  .stat-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .stat-num{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:var(--white);}
+  .stat-card.unread .stat-num{color:var(--gold-light);}
+
+  /* ── Toolbar ── */
+  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+  .filter-btn{
+    padding:8px 18px;background:transparent;border:1px solid var(--border);
+    color:var(--muted);font-family:'Barlow',sans-serif;font-size:12px;
+    font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    border-radius:3px;cursor:pointer;transition:.2s;
+  }
+  .filter-btn.active,.filter-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+  .search-box{
+    margin-left:auto;padding:8px 16px;
+    background:var(--navy-mid);border:1px solid var(--border);
+    border-radius:3px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;
+    outline:none;width:240px;transition:border-color .2s;
+  }
+  .search-box:focus{border-color:var(--gold);}
+  .search-box::placeholder{color:rgba(154,172,190,.5);}
+
+  /* ── Table ── */
+  .table-wrap{background:var(--navy-mid);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:rgba(200,146,42,0.08);border-bottom:1px solid var(--border);}
+  th{
+    padding:14px 18px;text-align:left;
+    font-size:10px;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--gold);
+  }
+  tbody tr{border-bottom:1px solid rgba(200,146,42,0.08);transition:background .15s;cursor:pointer;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:rgba(28,53,88,0.6);}
+  tbody tr.unread td:first-child{border-left:3px solid var(--gold-light);}
+  td{padding:15px 18px;font-size:13.5px;color:var(--white);vertical-align:middle;}
+  .td-name{font-weight:600;}
+  .td-service{font-size:12px;color:var(--gold);font-weight:600;letter-spacing:.06em;}
+  .td-date{font-size:12px;color:var(--muted);}
+  .badge-unread{
+    display:inline-block;padding:3px 9px;background:rgba(200,146,42,0.15);
+    border:1px solid var(--border);border-radius:20px;
+    font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--gold-light);
+  }
+  .badge-read{
+    display:inline-block;padding:3px 9px;background:rgba(46,204,113,0.1);
+    border:1px solid rgba(46,204,113,0.2);border-radius:20px;
+    font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--green);
+  }
+  .empty-state{text-align:center;padding:64px 24px;color:var(--muted);}
+  .empty-state p{margin-top:12px;font-size:14px;}
+
+  /* ── Modal ── */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(6,15,28,.85);
+    z-index:50;align-items:center;justify-content:center;padding:24px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--navy-mid);border:1px solid var(--border);
+    border-radius:8px;max-width:640px;width:100%;
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 28px;border-bottom:1px solid var(--border);
+  }
+  .modal-header h3{
+    font-family:'Barlow Condensed',sans-serif;font-size:1rem;
+    font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+  }
+  .modal-close{
+    background:none;border:none;color:var(--muted);cursor:pointer;
+    font-size:22px;line-height:1;transition:color .2s;
+  }
+  .modal-close:hover{color:var(--white);}
+  .modal-body{padding:28px;}
+  .detail-row{display:grid;grid-template-columns:140px 1fr;gap:8px;padding:12px 0;border-bottom:1px solid rgba(200,146,42,0.08);}
+  .detail-row:last-child{border-bottom:none;}
+  .detail-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);align-self:start;padding-top:2px;}
+  .detail-value{font-size:14px;color:var(--white);line-height:1.7;}
+  .detail-value.message-text{
+    background:var(--navy);border:1px solid var(--border);
+    border-radius:4px;padding:14px;white-space:pre-wrap;font-weight:300;
+  }
+  .modal-actions{
+    display:flex;gap:10px;padding:20px 28px;
+    border-top:1px solid var(--border);
+  }
+  .btn-mark-read{
+    padding:10px 20px;background:var(--gold);border:none;color:var(--navy);
+    font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
+  }
+  .btn-mark-read:hover{background:var(--gold-light);}
+  .btn-delete{
+    padding:10px 20px;background:transparent;border:1px solid rgba(231,76,60,.4);
+    color:#e74c3c;font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
+  }
+  .btn-delete:hover{background:rgba(231,76,60,.1);}
+
+  /* ── Login overlay ── */
+  #login-overlay{
+    position:fixed;inset:0;background:var(--navy);z-index:100;
+    display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .login-card{
+    background:var(--navy-mid);border:1px solid var(--border);
+    border-radius:8px;padding:44px 40px;width:100%;max-width:400px;
+    text-align:center;
+  }
+  .login-card h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:6px;}
+  .login-card p{font-size:13px;color:var(--muted);margin-bottom:32px;}
+  .login-field{margin-bottom:16px;text-align:left;}
+  .login-field label{display:block;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .login-field input{
+    width:100%;padding:13px 16px;background:var(--navy);border:1px solid var(--border);
+    border-radius:3px;color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;outline:none;
+  }
+  .login-field input:focus{border-color:var(--gold);}
+  .btn-login{
+    width:100%;margin-top:8px;padding:14px;background:var(--gold);border:none;
+    color:var(--navy);font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
+  }
+  .btn-login:hover{background:var(--gold-light);}
+  #login-error{color:#e74c3c;font-size:13px;margin-top:12px;display:none;}
+
+  /* ── Toast ── */
+  #toast{
+    position:fixed;bottom:32px;right:32px;z-index:200;
+    padding:14px 22px;background:var(--navy-light);border:1px solid var(--border);
+    border-radius:4px;font-size:13px;font-weight:500;color:var(--white);
+    transform:translateY(80px);opacity:0;transition:.3s;pointer-events:none;
+  }
+  #toast.show{transform:translateY(0);opacity:1;}
+  #toast.success{border-color:rgba(46,204,113,.4);color:var(--green);}
+  #toast.error{border-color:rgba(231,76,60,.4);color:#e74c3c;}
+
+  .loading{text-align:center;padding:60px;color:var(--muted);font-size:14px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div style="font-size:2rem;margin-bottom:16px;">🔐</div>
+    <h2>Admin Portal</h2>
+    <p>Emkay Surveys Nigeria Limited</p>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In →</button>
+    <p id="login-error">Invalid credentials. Please try again.</p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-logo">
+    <div class="logo-box">ES</div>
+    <div>
+      <strong>Emkay Surveys</strong><br>
+      <span>Admin Dashboard</span>
+    </div>
+  </div>
+  <button id="logout-btn" onclick="logout()">Sign Out</button>
+</header>
+
+<!-- MAIN -->
+<main class="container">
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Total Enquiries</div>
+      <div class="stat-num" id="stat-total">—</div>
+    </div>
+    <div class="stat-card unread">
+      <div class="stat-label">Unread</div>
+      <div class="stat-num" id="stat-unread">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Read</div>
+      <div class="stat-num" id="stat-read">—</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="filter-btn active" onclick="setFilter('all', this)">All Messages</button>
+    <button class="filter-btn" onclick="setFilter('unread', this)">Unread Only</button>
+    <button class="filter-btn" onclick="loadData()">↻ Refresh</button>
+    <input type="text" class="search-box" placeholder="Search by name, email…" oninput="filterTable(this.value)">
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div id="table-loading" class="loading">Loading messages…</div>
+    <table id="msg-table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Service</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="msg-tbody"></tbody>
+    </table>
+    <div id="empty-state" class="empty-state" style="display:none;">
+      <span style="font-size:2.5rem;">📭</span>
+      <p>No messages found.</p>
+    </div>
+  </div>
+</main>
+
+<!-- MESSAGE MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📩 &nbsp; Enquiry Details</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-mark-read" id="btn-read" onclick="markRead()">Mark as Read</button>
+      <button class="btn-delete" onclick="deleteMsg()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+  const API = '';  // Same origin — change to 'http://localhost:8000' if running separately
+  let authHeader = '';
+  let allMessages = [];
+  let currentFilter = 'all';
+  let currentMsgId = null;
+
+  // ── Login ──────────────────────────────────────────────────────────────
+  function doLogin() {
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value.trim();
+    if (!u || !p) return;
+    authHeader = 'Basic ' + btoa(u + ':' + p);
+    // Store in session
+    sessionStorage.setItem('emkay_auth', authHeader);
+    verifyAndLoad();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !document.getElementById('login-overlay').style.display) doLogin();
+  });
+
+  function logout() {
+    sessionStorage.removeItem('emkay_auth');
+    authHeader = '';
+    document.getElementById('login-overlay').style.display = 'flex';
+  }
+
+  async function verifyAndLoad() {
+    try {
+      const r = await fetch(`${API}/api/admin/stats`, {headers:{Authorization: authHeader}});
+      if (r.status === 401) { showLoginError(); return; }
+      document.getElementById('login-overlay').style.display = 'none';
+      loadData();
+    } catch { showLoginError(); }
+  }
+
+  function showLoginError() {
+    document.getElementById('login-error').style.display = 'block';
+    authHeader = '';
+    sessionStorage.removeItem('emkay_auth');
+  }
+
+  // ── On page load, check stored auth ────────────────────────────────────
+  window.addEventListener('load', () => {
+    const stored = sessionStorage.getItem('emkay_auth');
+    if (stored) { authHeader = stored; verifyAndLoad(); }
+  });
+
+  // ── Load data ──────────────────────────────────────────────────────────
+  async function loadData() {
+    loadStats();
+    loadMessages();
+  }
+
+  async function loadStats() {
+    try {
+      const r = await fetch(`${API}/api/admin/stats`, {headers:{Authorization:authHeader}});
+      const d = await r.json();
+      document.getElementById('stat-total').textContent  = d.total;
+      document.getElementById('stat-unread').textContent = d.unread;
+      document.getElementById('stat-read').textContent   = d.read;
+    } catch {}
+  }
+
+  async function loadMessages() {
+    document.getElementById('table-loading').style.display = 'block';
+    document.getElementById('msg-table').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'none';
+
+    const url = currentFilter === 'unread'
+      ? `${API}/api/admin/messages?unread_only=true`
+      : `${API}/api/admin/messages`;
+
+    try {
+      const r = await fetch(url, {headers:{Authorization:authHeader}});
+      allMessages = await r.json();
+      renderTable(allMessages);
+    } catch (e) {
+      showToast('Failed to load messages.', 'error');
+    }
+    document.getElementById('table-loading').style.display = 'none';
+  }
+
+  function renderTable(msgs) {
+    const tbody = document.getElementById('msg-tbody');
+    tbody.innerHTML = '';
+    if (!msgs.length) {
+      document.getElementById('empty-state').style.display = 'block';
+      document.getElementById('msg-table').style.display = 'none';
+      return;
+    }
+    document.getElementById('msg-table').style.display = 'table';
+    msgs.forEach(m => {
+      const tr = document.createElement('tr');
+      if (!m.is_read) tr.classList.add('unread');
+      tr.onclick = () => openModal(m);
+      tr.innerHTML = `
+        <td class="td-name">${m.first_name} ${m.last_name}</td>
+        <td>${m.email}</td>
+        <td class="td-service">${m.service || '—'}</td>
+        <td class="td-date">${formatDate(m.submitted_at)}</td>
+        <td>${m.is_read
+          ? '<span class="badge-read">Read</span>'
+          : '<span class="badge-unread">Unread</span>'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function filterTable(query) {
+    const q = query.toLowerCase();
+    const filtered = allMessages.filter(m =>
+      `${m.first_name} ${m.last_name} ${m.email} ${m.service || ''}`.toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+  }
+
+  function setFilter(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadMessages();
+  }
+
+  // ── Modal ──────────────────────────────────────────────────────────────
+  function openModal(m) {
+    currentMsgId = m.id;
+    const body = document.getElementById('modal-body');
+    body.innerHTML = `
+      <div class="detail-row"><div class="detail-label">Name</div><div class="detail-value">${m.first_name} ${m.last_name}</div></div>
+      <div class="detail-row"><div class="detail-label">Email</div><div class="detail-value"><a href="mailto:${m.email}" style="color:var(--gold-light)">${m.email}</a></div></div>
+      <div class="detail-row"><div class="detail-label">Phone</div><div class="detail-value">${m.phone || '—'}</div></div>
+      <div class="detail-row"><div class="detail-label">Service</div><div class="detail-value">${m.service || '—'}</div></div>
+      <div class="detail-row"><div class="detail-label">Submitted</div><div class="detail-value">${formatDate(m.submitted_at, true)}</div></div>
+      <div class="detail-row"><div class="detail-label">Message</div><div class="detail-value message-text">${m.message}</div></div>
+    `;
+    const btnRead = document.getElementById('btn-read');
+    btnRead.style.display = m.is_read ? 'none' : 'inline-block';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    currentMsgId = null;
+  }
+
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  async function markRead() {
+    if (!currentMsgId) return;
+    await fetch(`${API}/api/admin/messages/${currentMsgId}/read`, {
+      method:'PATCH', headers:{Authorization:authHeader}
+    });
+    showToast('Marked as read ✓', 'success');
+    closeModal(); loadData();
+  }
+
+  async function deleteMsg() {
+    if (!currentMsgId || !confirm('Delete this message? This cannot be undone.')) return;
+    await fetch(`${API}/api/admin/messages/${currentMsgId}`, {
+      method:'DELETE', headers:{Authorization:authHeader}
+    });
+    showToast('Message deleted.', 'success');
+    closeModal(); loadData();
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────
+  function formatDate(iso, long = false) {
+    const d = new Date(iso);
+    if (long) return d.toLocaleString('en-NG', {dateStyle:'long', timeStyle:'short'});
+    return d.toLocaleDateString('en-NG', {day:'2-digit', month:'short', year:'numeric'});
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + type;
+    setTimeout(() => t.className = '', 3200);
+  }
+</script>
+</body>
+</html>
