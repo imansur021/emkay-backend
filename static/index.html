@@ -847,14 +847,21 @@ async function submitForm(e) {
       body: JSON.stringify({ first_name: firstName, last_name: lastName, email, phone: phone||null, service: service||null, message })
     });
 
-    if (res.ok) {
+ if (res.ok) {
       showMsg('✓ Your message has been sent! We will be in touch shortly.', 'success');
-      // Clear form
       document.querySelectorAll('input, textarea').forEach(el => el.value = '');
       document.querySelector('select').selectedIndex = 0;
     } else {
       const err = await res.json();
-      showMsg(err.detail || 'Something went wrong. Please try again.', 'error');
+      let errMsg = 'Something went wrong. Please try again.';
+      if (err.detail) {
+        if (typeof err.detail === 'string') {
+          errMsg = err.detail;
+        } else if (Array.isArray(err.detail)) {
+          errMsg = err.detail.map(e => e.msg).join('. ');
+        }
+      }
+      showMsg(errMsg, 'error');
     }
   } catch {
     showMsg('Unable to reach the server. Please call us directly.', 'error');
