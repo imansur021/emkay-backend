@@ -11,10 +11,13 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 import secrets
 import smtplib
+import httpx
+import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from typing import List
+from pydantic import BaseModel
 
 from database import SessionLocal, engine, Base
 import models
@@ -148,6 +151,66 @@ def send_confirmation_email(msg: models.Message):
 # ═══════════════════════════════════════════════════════════════════════════
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════════════════
+
+_CHAT_SYSTEM_PROMPT = """You are a helpful, friendly customer service assistant for Emkay Surveys Nigeria Limited.
+
+Company info:
+- RC Number: 6951225
+- Services: Consultant Surveying, General Contracting, Engineering, Mineral Prospecting, Software Development
+- HQ: 201T, Novare Central Mall, Wuse Zone 5, Abuja, FCT
+- Branches: Kano, Kaduna, Katsina, Sokoto
+- Phone: +234 806 077 2573 and +234 701 885 6666
+- Email: Emkaysurveys@gmail.com
+- Hours: Monday to Friday, 8am to 5pm
+
+Keep replies concise and helpful. For pricing, say it depends on project scope and they should contact us for a quote. If they want to speak to a human, encourage them to click the "Talk to a human" button."""
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+
+
+@app.post("/api/chat", tags=["Contact"], summary="AI chatbot proxy")
+async def chat(req: ChatRequest):
+    """
+    Proxies chat messages to the Google Gemini API (free tier).
+    The API key is kept server-side via the GEMINI_API_KEY environment variable.
+    """
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Chat service not configured.")
+
+    # Convert messages to Gemini format (role: user/model, parts: [{text}])
+    gemini_contents = []
+    for m in req.messages:
+        role = "model" if m.role == "assistant" else "user"
+        gemini_contents.append({"role": role, "parts": [{"text": m.content}]})
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            json={
+                "system_instruction": {"parts": [{"text": _CHAT_SYSTEM_PROMPT}]},
+                "contents": gemini_contents,
+                "generationConfig": {"maxOutputTokens": 1000},
+            },
+        )
+
+    if resp.status_code != 200:
+        print(f"[CHAT ERROR] Gemini returned {resp.status_code}: {resp.text}")
+        raise HTTPException(status_code=502, detail="Chat service temporarily unavailable.")
+
+    data = resp.json()
+    reply = data["candidates"][0]["content"]["parts"][0]["text"]
+    return {"reply": reply}
+
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def root():
