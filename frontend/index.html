@@ -828,31 +828,15 @@ async function sendChat() {
   showTyping();
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:`You are a helpful, friendly customer service assistant for Emkay Surveys Nigeria Limited.
-
-Company info:
-- RC Number: 6951225
-- Services: Consultant Surveying, General Contracting, Engineering, Mineral Prospecting, Software Development
-- HQ: 201T, Novare Central Mall, Wuse Zone 5, Abuja, FCT
-- Branches: Kano, Kaduna, Katsina, Sokoto
-- Phone: +234 806 077 2573 and +234 701 885 6666
-- Email: Emkaysurveys@gmail.com
-- Hours: Monday to Friday, 8am to 5pm
-
-Keep replies concise and helpful. For pricing, say it depends on project scope and they should contact us for a quote. If they want to speak to a human, encourage them to click "Talk to a human" button below.`,
-        messages: chatHistory
-      })
+    const res = await fetch(`${API_BASE}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatHistory })
     });
     const data = await res.json();
     hideTyping();
-    const reply = data.content?.[0]?.text || "I'm having trouble right now. Please call us at +234 806 077 2573.";
-    chatHistory.push({role:'assistant', content: reply});
+    const reply = data.reply || "I'm having trouble right now. Please call us at +234 806 077 2573.";
+    chatHistory.push({ role: 'assistant', content: reply });
     addBotMsg(reply);
   } catch {
     hideTyping();
