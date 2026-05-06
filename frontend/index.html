@@ -680,16 +680,17 @@ async function submitForm(e) {
   btn.disabled = true; btn.textContent = 'Sending…'; msg.style.display = 'none';
   try {
     const res = await fetch(`${API_BASE}/api/contact`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    name: "Ibrahim",
-    email: "test@gmail.com",
-    message: "Hello",
-  }),
-});
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        first_name: first,
+        last_name: last,
+        email: email,
+        phone: phone || null,
+        service: service || null,
+        message: message,
+      }),
+    });
     if (res.ok) {
       showMsg('✓ Your message has been sent! We will be in touch shortly.','success');
       document.querySelectorAll('#contact input,#contact textarea').forEach(el=>el.value='');
