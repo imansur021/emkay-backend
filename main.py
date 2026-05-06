@@ -212,9 +212,9 @@ async def chat(req: ChatRequest):
     return {"reply": reply}
 
 
-@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+@app.get("/", response_class=FileResponse, include_in_schema=False)
 def root():
-    return "<h3 style='font-family:sans-serif'>✅ Emkay Surveys API is running. Docs at <a href='/docs'>/docs</a></h3>"
+    return FileResponse("frontend/index.html")
 
 
 @app.post(
