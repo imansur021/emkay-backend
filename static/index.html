@@ -21,6 +21,63 @@
     --border: rgba(200,146,42,0.25);
   }
 
+/* ── LIGHT MODE ── */
+  body.light {
+    --navy: #f4f1eb;
+    --navy-mid: #ffffff;
+    --navy-light: #e8e2d8;
+    --white: #1a1a1a;
+    --off-white: #2a2a2a;
+    --text-muted: #5a6a7a;
+    --border: rgba(200,146,42,0.3);
+  }
+  body.light nav { background: rgba(244,241,235,0.95); }
+  body.light .hero-bg {
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 40%, rgba(200,146,42,0.08) 0%, transparent 70%),
+      linear-gradient(160deg, #f4f1eb 0%, #ede8de 50%, #f4f1eb 100%);
+  }
+  body.light .hero-grid-lines {
+    background-image:
+      linear-gradient(rgba(200,146,42,0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,146,42,0.1) 1px, transparent 1px);
+  }
+  body.light footer { background: #e8e2d8; }
+  body.light .service-card { background: #ffffff; }
+  body.light .service-card:hover { background: #f4f1eb; }
+  body.light .branch-card { background: #ffffff; }
+  body.light .contact-form { background: #ffffff; }
+  body.light .form-group input,
+  body.light .form-group select,
+  body.light .form-group textarea { background: #f4f1eb; color: #1a1a1a; }
+  body.light .nav-logo-text strong { color: #1a1a1a; }
+  body.light .about-card { background: #f9f6f0; }
+
+  /* ── THEME TOGGLE BUTTON ── */
+  .theme-toggle {
+    width: 44px; height: 24px;
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    position: relative; cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+    padding: 0;
+    outline: none;
+  }
+  .theme-toggle::after {
+    content: '';
+    position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--gold);
+    transition: transform 0.3s;
+  }
+  body.light .theme-toggle { background: #d4cfc7; }
+  body.light .theme-toggle::after { transform: translateX(20px); }
+  .theme-icon { font-size: 14px; margin-right: 4px; }
+  .nav-right { display: flex; align-items: center; gap: 14px; }
+
   html { scroll-behavior: smooth; }
 
   body {
