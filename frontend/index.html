@@ -813,6 +813,81 @@ function hideTyping() {
   if (t) t.remove();
 }
 
+// ── EMKAY LOCAL CHATBOT ENGINE ───────────────────────────────────────────
+const EMKAY_KB = [
+  {
+    keys: ['hello','hi','hey','good morning','good afternoon','good evening','greetings'],
+    reply: '👋 Hello! Welcome to Emkay Surveys Nigeria Limited. How can I help you today? You can ask me about our services, locations, pricing, or how to contact us.'
+  },
+  {
+    keys: ['service','what do you do','offer','provide','surveying','survey','contracting','engineering','mineral','software','prospecting'],
+    reply: '🏗️ Emkay Surveys offers:\n\n• Consultant Surveying — land and boundary surveys\n• General Contracting — construction and project management\n• Engineering Solutions — civil and structural engineering\n• Mineral Prospecting — geological surveys and mineral exploration\n• Software Development — custom software solutions\n\nWould you like details on any specific service?'
+  },
+  {
+    keys: ['location','where','address','office','branch','headquarter','hq','abuja','kano','kaduna','katsina','sokoto'],
+    reply: '📍 Our offices:\n\n• Head Office: 201T, Novare Central Mall, Wuse Zone 5, Abuja, FCT\n• Kano Branch\n• Kaduna Branch\n• Katsina Branch\n• Sokoto Branch\n\nWe serve clients across Nigeria!'
+  },
+  {
+    keys: ['phone','call','number','contact','reach','whatsapp','telephone'],
+    reply: '📞 You can reach us at:\n\n• +234 806 077 2573\n• +234 701 885 6666\n\n📧 Email: Emkaysurveys@gmail.com\n\nOr fill out the contact form on this page!'
+  },
+  {
+    keys: ['email','mail','message','enquiry','inquiry'],
+    reply: '📧 Send us an email at Emkaysurveys@gmail.com or use the contact form on this page. We typically respond within 1 business day.'
+  },
+  {
+    keys: ['hour','open','time','working','when','available','close','closing','opening'],
+    reply: '🕘 We are open:\n\nMonday – Friday: 8:00 AM – 5:00 PM\n\nClosed on weekends and public holidays. Leave us a message and we will respond the next business day.'
+  },
+  {
+    keys: ['price','cost','how much','fee','charge','rate','quote','pricing','afford','budget'],
+    reply: '💰 Our pricing depends on the scope of your project. We offer competitive rates tailored to your needs.\n\nTo get a quote:\n• Fill out the contact form on this page\n• Or call us at +234 806 077 2573\n\nWe will respond within 24 hours!'
+  },
+  {
+    keys: ['rc','registration','registered','cac','incorporate','company number'],
+    reply: '📋 Emkay Surveys Nigeria Limited is fully registered.\n\nRC Number: 6951225\n\nWe are a licensed professional firm operating across Nigeria.'
+  },
+  {
+    keys: ['land survey','boundary','topo','topographic','beaconing','mapping','cadastral'],
+    reply: '🗺️ Our Consultant Surveying service covers:\n\n• Land boundary surveys and beaconing\n• Topographic mapping\n• Cadastral surveys\n• Site surveys for construction\n• GPS and GIS mapping\n\nCall +234 806 077 2573 for a quote!'
+  },
+  {
+    keys: ['construction','build','contract','contractor','project','infrastructure'],
+    reply: '🏗️ Our General Contracting service handles construction and infrastructure projects of all sizes, managed professionally from start to finish.\n\nCall +234 806 077 2573 for a consultation.'
+  },
+  {
+    keys: ['mineral','geology','geological','mining','prospect','exploration'],
+    reply: '⛏️ Our Mineral Prospecting service includes geological surveys, mineral resource exploration, and site assessment.\n\nContact us to discuss your project requirements.'
+  },
+  {
+    keys: ['software','app','application','website','system','develop','tech','digital'],
+    reply: '💻 Our Software Development team builds custom digital solutions — web apps, management systems, and more.\n\nEmail us at Emkaysurveys@gmail.com to discuss your project!'
+  },
+  {
+    keys: ['thank','thanks','appreciate','grateful','great','awesome','excellent','wonderful'],
+    reply: '😊 You are welcome! We are always happy to help. Is there anything else you would like to know about Emkay Surveys?'
+  },
+  {
+    keys: ['bye','goodbye','see you','later','done','that is all','nothing else'],
+    reply: '👋 Thank you for reaching out to Emkay Surveys! Have a wonderful day. Feel free to come back anytime. 😊'
+  },
+  {
+    keys: ['human','person','agent','staff','talk','speak','representative','real'],
+    reply: '🤝 Sure! Click the "Talk to a human" button below and our team will get back to you directly.'
+  },
+];
+
+function emkayBot(text) {
+  const lower = text.toLowerCase().replace(/[^a-z0-9 ]/g, ' ');
+  for (const entry of EMKAY_KB) {
+    if (entry.keys.some(k => lower.includes(k))) {
+      return entry.reply;
+    }
+  }
+  return "I'm not sure I have the answer to that, but our team will! 😊\n\nYou can:\n• Call us: +234 806 077 2573\n• Email: Emkaysurveys@gmail.com\n• Fill the contact form on this page\n\nOr click \"Talk to a human\" below to connect with our team directly.";
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function sendChat() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
@@ -825,24 +900,12 @@ async function sendChat() {
     return;
   }
 
-  chatHistory.push({role:'user', content: text});
   showTyping();
-
-  try {
-    const res = await fetch(`${API_BASE}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: chatHistory })
-    });
-    const data = await res.json();
+  setTimeout(() => {
     hideTyping();
-    const reply = data.reply || "I'm having trouble right now. Please call us at +234 806 077 2573.";
-    chatHistory.push({ role: 'assistant', content: reply });
+    const reply = emkayBot(text);
     addBotMsg(reply);
-  } catch {
-    hideTyping();
-    addBotMsg("Sorry, I'm having connection issues. Please call us at +234 806 077 2573 or email Emkaysurveys@gmail.com.");
-  }
+  }, 600);
 }
 
 let humanStep = 0;
