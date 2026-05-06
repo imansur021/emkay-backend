@@ -345,6 +345,41 @@ def delete_message(
     return None
 
 
+@app.get("/api/admin/scheduled-calls", tags=["Admin"], summary="Get all scheduled calls")
+def get_scheduled_calls(
+    db: Session = Depends(get_db),
+    _: str = Depends(require_admin)
+):
+    from models import ScheduledCall
+    calls = db.query(ScheduledCall).order_by(ScheduledCall.submitted_at.desc()).all()
+    return [
+        {
+            "id": c.id,
+            "name": c.name,
+            "phone": c.phone,
+            "date": c.date,
+            "time": c.time,
+            "topic": c.topic,
+            "submitted_at": c.submitted_at.isoformat() if c.submitted_at else None,
+        }
+        for c in calls
+    ]
+
+@app.delete("/api/admin/scheduled-calls/{call_id}", status_code=204, tags=["Admin"])
+def delete_scheduled_call(
+    call_id: int,
+    db: Session = Depends(get_db),
+    _: str = Depends(require_admin)
+):
+    from models import ScheduledCall
+    c = db.query(ScheduledCall).filter(ScheduledCall.id == call_id).first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Call not found.")
+    db.delete(c)
+    db.commit()
+    return None
+
+
 @app.post("/api/suggestion", status_code=201, tags=["Contact"])
 def submit_suggestion(payload: dict, db: Session = Depends(get_db)):
     """Save a visitor suggestion."""

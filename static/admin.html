@@ -190,6 +190,14 @@
   #toast.error{border-color:rgba(231,76,60,.4);color:#e74c3c;}
 
   .loading{text-align:center;padding:60px;color:var(--muted);font-size:14px;}
+
+  /* ── Scheduled Calls ── */
+  .section-title{font-family:"Barlow Condensed",sans-serif;font-size:1rem;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:40px 0 16px;}
+  .calls-table-wrap{background:var(--navy-mid);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .btn-del-call{padding:5px 12px;background:transparent;border:1px solid rgba(231,76,60,.4);
+    color:#e74c3c;font-size:11px;font-weight:700;border-radius:3px;cursor:pointer;transition:.2s;}
+  .btn-del-call:hover{background:rgba(231,76,60,.1);}
 </style>
 </head>
 <body>
@@ -274,6 +282,32 @@
   </div>
 </main>
 
+<!-- SCHEDULED CALLS SECTION -->
+<div class="container" style="padding-top:0;">
+  <div class="section-title">📅 &nbsp; Scheduled Calls</div>
+  <div class="calls-table-wrap">
+    <div id="calls-loading" class="loading">Loading scheduled calls…</div>
+    <table id="calls-table" style="display:none;width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Topic</th>
+          <th>Submitted</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="calls-tbody"></tbody>
+    </table>
+    <div id="calls-empty" class="empty-state" style="display:none;">
+      <span style="font-size:2.5rem;">📵</span>
+      <p>No scheduled calls yet.</p>
+    </div>
+  </div>
+</div>
+
 <!-- MESSAGE MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
@@ -345,6 +379,46 @@
   async function loadData() {
     loadStats();
     loadMessages();
+    loadCalls();
+  }
+
+  // ── Scheduled Calls ────────────────────────────────────────────────────
+  async function loadCalls() {
+    document.getElementById('calls-loading').style.display = 'block';
+    document.getElementById('calls-table').style.display = 'none';
+    document.getElementById('calls-empty').style.display = 'none';
+    try {
+      const r = await fetch(`${API}/api/admin/scheduled-calls`, {headers:{Authorization:authHeader}});
+      const calls = await r.json();
+      const tbody = document.getElementById('calls-tbody');
+      tbody.innerHTML = '';
+      if (!calls.length) {
+        document.getElementById('calls-empty').style.display = 'block';
+      } else {
+        document.getElementById('calls-table').style.display = 'table';
+        calls.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="td-name">${c.name || '—'}</td>
+            <td>${c.phone || '—'}</td>
+            <td class="td-date">${c.date || '—'}</td>
+            <td class="td-date">${c.time || '—'}</td>
+            <td class="td-service">${c.topic || '—'}</td>
+            <td class="td-date">${formatDate(c.submitted_at)}</td>
+            <td><button class="btn-del-call" onclick="deleteCall(${c.id}, this)">Delete</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    } catch { showToast('Failed to load scheduled calls.', 'error'); }
+    document.getElementById('calls-loading').style.display = 'none';
+  }
+
+  async function deleteCall(id, btn) {
+    if (!confirm('Delete this scheduled call?')) return;
+    await fetch(`${API}/api/admin/scheduled-calls/${id}`, {method:'DELETE', headers:{Authorization:authHeader}});
+    showToast('Deleted ✓', 'success');
+    loadCalls();
   }
 
   async function loadStats() {
