@@ -6,7 +6,7 @@ FastAPI + SQLite + Email Notifications
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 import secrets
@@ -149,13 +149,10 @@ def send_confirmation_email(msg: models.Message):
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════════════════
 
-import os
-from fastapi.staticfiles import StaticFiles
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def root():
+    return "<h3 style='font-family:sans-serif'>✅ Emkay Surveys API is running. Docs at <a href='/docs'>/docs</a></h3>"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-frontend_path = os.path.join(BASE_DIR, "frontend")
-
-app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 
 @app.post(
     "/api/contact",
