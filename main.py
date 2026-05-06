@@ -52,6 +52,7 @@ def require_admin(credentials: HTTPBasicCredentials = Depends(security)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid admin credentials.",
+            headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
 
@@ -148,9 +149,9 @@ def send_confirmation_email(msg: models.Message):
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════════════════
 
-@app.get("/", response_class=FileResponse, include_in_schema=False)
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def root():
-    return FileResponse("static/index.html")
+    return "<h3 style='font-family:sans-serif'>✅ Emkay Surveys API is running. Docs at <a href='/docs'>/docs</a></h3>"
 
 
 @app.post(
@@ -280,6 +281,55 @@ def delete_message(
     db.commit()
     return None
 
+
+@app.post("/api/suggestion", status_code=201, tags=["Contact"])
+def submit_suggestion(payload: dict, db: Session = Depends(get_db)):
+    """Save a visitor suggestion."""
+    from models import Suggestion
+    s = Suggestion(name=payload.get("name","Anonymous"), suggestion=payload.get("suggestion",""), submitted_at=datetime.utcnow())
+    db.add(s); db.commit()
+    return {"status": "received"}
+
+@app.post("/api/schedule", status_code=201, tags=["Contact"])
+def schedule_call(payload: dict, db: Session = Depends(get_db)):
+    """Save a scheduled call request."""
+    from models import ScheduledCall
+    c = ScheduledCall(name=payload.get("name"), phone=payload.get("phone"), date=payload.get("date"), time=payload.get("time"), topic=payload.get("topic"), submitted_at=datetime.utcnow())
+    db.add(c); db.commit()
+    send_schedule_email(c)
+    return {"status": "scheduled"}
+
+@app.post("/api/chat-handoff", status_code=201, tags=["Contact"])
+def chat_handoff(payload: dict):
+    """Notify team when someone requests a human from the chatbot."""
+    name  = payload.get("name", "Unknown")
+    phone = payload.get("phone", "Unknown")
+    print(f"[CHAT HANDOFF] {name} requested human chat. Phone: {phone}")
+    if settings.SMTP_ENABLED:
+        try:
+            body = f"<h3>Chat Handoff Request</h3><p><b>Name:</b> {name}</p><p><b>Phone:</b> {phone}</p>"
+            msg = MIMEMultipart("alternative"); msg["Subject"] = f"[Emkay Chat] {name} wants to speak to a human"
+            msg["From"] = settings.SMTP_FROM; msg["To"] = settings.NOTIFY_EMAIL
+            msg.attach(MIMEText(body,"html"))
+            with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as s:
+                s.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                s.sendmail(settings.SMTP_FROM, settings.NOTIFY_EMAIL, msg.as_string())
+        except Exception as e:
+            print(f"[EMAIL ERROR] {e}")
+    return {"status": "notified"}
+
+def send_schedule_email(c):
+    if not settings.SMTP_ENABLED: print(f"[SCHEDULE] {c.name} booked a call on {c.date} at {c.time}"); return
+    try:
+        body = f"<h3>New Call Scheduled</h3><p><b>Name:</b> {c.name}</p><p><b>Phone:</b> {c.phone}</p><p><b>Date:</b> {c.date}</p><p><b>Time:</b> {c.time}</p><p><b>Topic:</b> {c.topic}</p>"
+        msg = MIMEMultipart("alternative"); msg["Subject"] = f"[Emkay] Call Scheduled — {c.name}"
+        msg["From"] = settings.SMTP_FROM; msg["To"] = settings.NOTIFY_EMAIL
+        msg.attach(MIMEText(body,"html"))
+        with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as s:
+            s.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            s.sendmail(settings.SMTP_FROM, settings.NOTIFY_EMAIL, msg.as_string())
+    except Exception as e:
+        print(f"[EMAIL ERROR] {e}")
 
 @app.get(
     "/api/admin/stats",
