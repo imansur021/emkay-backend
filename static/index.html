@@ -21,7 +21,7 @@
     --border: rgba(200,146,42,0.25);
   }
 
-/* ── LIGHT MODE ── */
+  /* ── LIGHT MODE ── */
   body.light {
     --navy: #f4f1eb;
     --navy-mid: #ffffff;
@@ -85,6 +85,7 @@
     background: var(--navy);
     color: var(--white);
     overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
   }
 
   /* ── NAV ── */
@@ -583,7 +584,11 @@
     <li><a href="#branches">Locations</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <a href="#contact" class="nav-cta">Get a Quote</a>
+  <div class="nav-right">
+    <span class="theme-icon" id="theme-icon">🌙</span>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode"></button>
+    <a href="#contact" class="nav-cta">Get a Quote</a>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -875,7 +880,7 @@
 </section>
 
 <script>
-const API_BASE = ''; // Change to your deployed backend URL
+const API_BASE = 'http://localhost:8000'; // Change to your deployed backend URL
 
 async function submitForm(e) {
   e.preventDefault();
@@ -904,21 +909,14 @@ async function submitForm(e) {
       body: JSON.stringify({ first_name: firstName, last_name: lastName, email, phone: phone||null, service: service||null, message })
     });
 
- if (res.ok) {
+    if (res.ok) {
       showMsg('✓ Your message has been sent! We will be in touch shortly.', 'success');
+      // Clear form
       document.querySelectorAll('input, textarea').forEach(el => el.value = '');
       document.querySelector('select').selectedIndex = 0;
     } else {
       const err = await res.json();
-      let errMsg = 'Something went wrong. Please try again.';
-      if (err.detail) {
-        if (typeof err.detail === 'string') {
-          errMsg = err.detail;
-        } else if (Array.isArray(err.detail)) {
-          errMsg = err.detail.map(e => e.msg).join('. ');
-        }
-      }
-      showMsg(errMsg, 'error');
+      showMsg(err.detail || 'Something went wrong. Please try again.', 'error');
     }
   } catch {
     showMsg('Unable to reach the server. Please call us directly.', 'error');
@@ -973,5 +971,30 @@ function showMsg(text, type) {
   </div>
 </footer>
 
+<script>
+  // ── Dark / Light Mode Toggle ──────────────────────────────────────────
+  const icon = document.getElementById('theme-icon');
+
+  function applyTheme(mode) {
+    if (mode === 'light') {
+      document.body.classList.add('light');
+      icon.textContent = '☀️';
+    } else {
+      document.body.classList.remove('light');
+      icon.textContent = '🌙';
+    }
+  }
+
+  function toggleTheme() {
+    const isLight = document.body.classList.contains('light');
+    const newMode = isLight ? 'dark' : 'light';
+    localStorage.setItem('emkay-theme', newMode);
+    applyTheme(newMode);
+  }
+
+  // Load saved preference on page load
+  const saved = localStorage.getItem('emkay-theme') || 'dark';
+  applyTheme(saved);
+</script>
 </body>
 </html>
