@@ -149,10 +149,13 @@ def send_confirmation_email(msg: models.Message):
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════════════════
 
-@app.get("/", response_class=HTMLResponse, include_in_schema=False)
-def root():
-    return "<h3 style='font-family:sans-serif'>✅ Emkay Surveys API is running. Docs at <a href='/docs'>/docs</a></h3>"
+import os
+from fastapi.staticfiles import StaticFiles
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+frontend_path = os.path.join(BASE_DIR, "frontend")
+
+app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 
 @app.post(
     "/api/contact",
