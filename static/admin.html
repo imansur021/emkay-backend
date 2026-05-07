@@ -3,221 +3,351 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — Emkay Surveys</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<title>Admin Portal — Emkay Surveys Nigeria Limited</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --navy:#0b1a2e;--navy-mid:#122540;--navy-light:#1c3558;
-    --gold:#c8922a;--gold-light:#e6ad47;--white:#f8f5ef;
-    --muted:#9aacbe;--border:rgba(200,146,42,0.22);
+    --navy:#0b1a2e;--navy-mid:#112038;--navy-light:#1a3050;
+    --gold:#2d8c42;--gold-light:#3daa55;--gold-pale:#a8e6b4;
+    --white:#f0f8f2;--off-white:#dff0e4;--text-muted:#8aadb8;
+    --border:rgba(45,140,66,0.28);
     --green:#2ecc71;--red:#e74c3c;--yellow:#f39c12;
   }
-  body{font-family:'Barlow',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Barlow',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
 
-  /* ── Header ── */
-  header{
-    background:var(--navy-mid);border-bottom:1px solid var(--border);
-    padding:0 32px;height:64px;display:flex;align-items:center;
-    justify-content:space-between;position:sticky;top:0;z-index:10;
+  /* ── SPLASH ── */
+  #splash{
+    position:fixed;inset:0;z-index:9999;
+    background:linear-gradient(135deg,#0b1a2e 0%,#0d2b1a 50%,#0b1a2e 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    animation:splashHide 0.9s 2.2s ease forwards;
+    pointer-events:none;
   }
-  .header-logo{display:flex;align-items:center;gap:12px;}
-  .logo-box{
-    width:36px;height:36px;background:var(--gold);border-radius:4px;
+  @keyframes splashHide{0%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden;pointer-events:none}}
+  .splash-icon{
+    width:80px;height:80px;background:var(--gold);border-radius:10px;
     display:flex;align-items:center;justify-content:center;
-    font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:var(--navy);
+    font-family:'Playfair Display',serif;font-weight:900;font-size:32px;color:#fff;
+    animation:splashPop .7s cubic-bezier(.175,.885,.32,1.275) both;
+    box-shadow:0 0 80px rgba(45,140,66,.5);margin-bottom:28px;
   }
-  .header-logo strong{
-    font-family:'Barlow Condensed',sans-serif;font-weight:700;
-    font-size:14px;letter-spacing:.1em;text-transform:uppercase;
+  .splash-title{
+    font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,2.2rem);
+    font-weight:900;color:#fff;text-align:center;
+    animation:splashFadeUp .8s .3s ease both;line-height:1.2;
   }
-  .header-logo span{font-size:11px;color:var(--gold);}
+  .splash-title em{color:#3daa55;font-style:italic;}
+  .splash-sub{
+    font-family:'Barlow',sans-serif;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:rgba(45,140,66,.7);margin-top:10px;
+    animation:splashFadeUp .8s .5s ease both;
+  }
+  .splash-bar{width:180px;height:2px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:36px;overflow:hidden;animation:splashFadeUp .8s .6s ease both;}
+  .splash-bar-fill{height:100%;background:linear-gradient(90deg,#2d8c42,#3daa55);animation:splashLoad 1.8s .7s ease-out forwards;width:0;}
+  @keyframes splashPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+  @keyframes splashFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes splashLoad{to{width:100%}}
+
+  /* ── HEADER ── */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(11,26,46,.95);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    padding:0 5vw;height:72px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .header-logo{display:flex;align-items:center;gap:14px;text-decoration:none;}
+  .logo-box{
+    width:40px;height:40px;background:var(--gold);border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;font-weight:900;font-size:16px;color:#fff;
+    box-shadow:0 0 20px rgba(45,140,66,.3);flex-shrink:0;
+  }
+  .header-logo-text{line-height:1.25;}
+  .header-logo-text strong{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--white);}
+  .header-logo-text span{font-size:10.5px;color:var(--gold);letter-spacing:.05em;}
+  .header-right{display:flex;align-items:center;gap:16px;}
+  .admin-badge{
+    padding:5px 14px;background:rgba(45,140,66,.12);border:1px solid var(--border);
+    border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:7px;
+  }
+  .admin-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
   #logout-btn{
-    padding:8px 18px;background:transparent;border:1px solid var(--border);
-    color:var(--muted);font-family:'Barlow',sans-serif;font-size:12px;
-    font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    padding:8px 20px;background:transparent;border:1px solid var(--border);
+    color:var(--text-muted);font-family:'Barlow',sans-serif;font-size:11px;
+    font-weight:700;letter-spacing:.1em;text-transform:uppercase;
     border-radius:3px;cursor:pointer;transition:border-color .2s,color .2s;
   }
   #logout-btn:hover{border-color:var(--red);color:var(--red);}
 
-  /* ── Layout ── */
-  .container{max-width:1200px;margin:0 auto;padding:40px 32px;}
+  /* ── LAYOUT ── */
+  .container{max-width:1200px;margin:0 auto;padding:48px 5vw;}
 
-  /* ── Stats bar ── */
-  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:36px;}
+  /* ── STATS BAR ── */
+  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px;}
   .stat-card{
     background:var(--navy-mid);border:1px solid var(--border);
-    border-radius:6px;padding:24px 28px;
+    border-radius:6px;padding:28px 32px;position:relative;overflow:hidden;
+    transition:transform .2s,box-shadow .2s;
   }
-  .stat-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
-  .stat-num{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:var(--white);}
-  .stat-card.unread .stat-num{color:var(--gold-light);}
+  .stat-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.2),0 0 20px rgba(45,140,66,.06);}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,var(--gold),var(--gold-light));}
+  .stat-card.accent::before{background:linear-gradient(180deg,#3daa55,#a8e6b4);}
+  .stat-label{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+  .stat-num{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:900;color:var(--white);line-height:1;}
+  .stat-card.accent .stat-num{color:var(--gold-light);}
 
-  /* ── Toolbar ── */
-  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+  /* ── TOOLBAR ── */
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+  .section-label-sm{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);}
+  .section-title-sm{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--white);margin-top:4px;}
+  .section-title-sm em{font-style:italic;color:var(--gold-light);}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
   .filter-btn{
-    padding:8px 18px;background:transparent;border:1px solid var(--border);
-    color:var(--muted);font-family:'Barlow',sans-serif;font-size:12px;
-    font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    padding:8px 20px;background:transparent;border:1px solid var(--border);
+    color:var(--text-muted);font-family:'Barlow',sans-serif;font-size:11px;
+    font-weight:700;letter-spacing:.1em;text-transform:uppercase;
     border-radius:3px;cursor:pointer;transition:.2s;
   }
-  .filter-btn.active,.filter-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+  .filter-btn.active,.filter-btn:hover{background:var(--gold);border-color:var(--gold);color:#fff;}
   .search-box{
-    margin-left:auto;padding:8px 16px;
+    padding:8px 16px;
     background:var(--navy-mid);border:1px solid var(--border);
     border-radius:3px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;
-    outline:none;width:240px;transition:border-color .2s;
+    outline:none;width:230px;transition:border-color .2s;
   }
   .search-box:focus{border-color:var(--gold);}
-  .search-box::placeholder{color:rgba(154,172,190,.5);}
+  .search-box::placeholder{color:rgba(154,172,190,.45);}
 
-  /* ── Table ── */
+  /* ── TABLE WRAPPER ── */
   .table-wrap{background:var(--navy-mid);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
   table{width:100%;border-collapse:collapse;}
-  thead tr{background:rgba(200,146,42,0.08);border-bottom:1px solid var(--border);}
+  thead tr{background:rgba(45,140,66,0.06);border-bottom:1px solid var(--border);}
   th{
-    padding:14px 18px;text-align:left;
-    font-size:10px;font-weight:700;letter-spacing:.14em;
+    padding:14px 20px;text-align:left;
+    font-size:10px;font-weight:700;letter-spacing:.16em;
     text-transform:uppercase;color:var(--gold);
   }
-  tbody tr{border-bottom:1px solid rgba(200,146,42,0.08);transition:background .15s;cursor:pointer;}
+  tbody tr{border-bottom:1px solid rgba(45,140,66,0.08);transition:background .15s;cursor:pointer;}
   tbody tr:last-child{border-bottom:none;}
-  tbody tr:hover{background:rgba(28,53,88,0.6);}
+  tbody tr:hover{background:rgba(26,48,80,0.7);}
   tbody tr.unread td:first-child{border-left:3px solid var(--gold-light);}
-  td{padding:15px 18px;font-size:13.5px;color:var(--white);vertical-align:middle;}
+  td{padding:16px 20px;font-size:13.5px;color:var(--white);vertical-align:middle;}
   .td-name{font-weight:600;}
-  .td-service{font-size:12px;color:var(--gold);font-weight:600;letter-spacing:.06em;}
-  .td-date{font-size:12px;color:var(--muted);}
+  .td-service{font-size:12px;color:var(--gold);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+  .td-date{font-size:12px;color:var(--text-muted);}
   .badge-unread{
-    display:inline-block;padding:3px 9px;background:rgba(200,146,42,0.15);
+    display:inline-block;padding:3px 10px;background:rgba(45,140,66,0.12);
     border:1px solid var(--border);border-radius:20px;
     font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--gold-light);
   }
   .badge-read{
-    display:inline-block;padding:3px 9px;background:rgba(46,204,113,0.1);
+    display:inline-block;padding:3px 10px;background:rgba(46,204,113,0.08);
     border:1px solid rgba(46,204,113,0.2);border-radius:20px;
     font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--green);
   }
-  .empty-state{text-align:center;padding:64px 24px;color:var(--muted);}
-  .empty-state p{margin-top:12px;font-size:14px;}
+  .empty-state{text-align:center;padding:72px 24px;color:var(--text-muted);}
+  .empty-state .empty-icon{font-size:2.8rem;margin-bottom:16px;display:block;opacity:.5;}
+  .empty-state p{font-size:14px;font-weight:300;}
+  .loading{text-align:center;padding:64px;color:var(--text-muted);font-size:14px;font-weight:300;letter-spacing:.05em;}
 
-  /* ── Modal ── */
+  /* ── SECTION DIVIDER ── */
+  .section-divider{width:60px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin:0 0 20px;}
+
+  /* ── MODAL ── */
   .modal-overlay{
-    display:none;position:fixed;inset:0;background:rgba(6,15,28,.85);
-    z-index:50;align-items:center;justify-content:center;padding:24px;
+    display:none;position:fixed;inset:0;background:rgba(6,14,26,.88);
+    z-index:500;align-items:center;justify-content:center;padding:24px;
+    backdrop-filter:blur(4px);
   }
   .modal-overlay.open{display:flex;}
   .modal{
     background:var(--navy-mid);border:1px solid var(--border);
-    border-radius:8px;max-width:640px;width:100%;
+    border-radius:8px;max-width:660px;width:100%;
     max-height:90vh;overflow-y:auto;
+    animation:modalIn .25s ease both;
   }
+  @keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
   .modal-header{
     display:flex;align-items:center;justify-content:space-between;
-    padding:22px 28px;border-bottom:1px solid var(--border);
+    padding:24px 32px;border-bottom:1px solid var(--border);
   }
   .modal-header h3{
     font-family:'Barlow Condensed',sans-serif;font-size:1rem;
-    font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+    font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);
+    display:flex;align-items:center;gap:10px;
   }
   .modal-close{
-    background:none;border:none;color:var(--muted);cursor:pointer;
-    font-size:22px;line-height:1;transition:color .2s;
+    background:none;border:none;color:var(--text-muted);cursor:pointer;
+    font-size:20px;line-height:1;transition:color .2s;padding:4px;
   }
   .modal-close:hover{color:var(--white);}
-  .modal-body{padding:28px;}
-  .detail-row{display:grid;grid-template-columns:140px 1fr;gap:8px;padding:12px 0;border-bottom:1px solid rgba(200,146,42,0.08);}
+  .modal-body{padding:32px;}
+  .detail-row{display:grid;grid-template-columns:130px 1fr;gap:8px;padding:14px 0;border-bottom:1px solid rgba(45,140,66,0.08);}
   .detail-row:last-child{border-bottom:none;}
-  .detail-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);align-self:start;padding-top:2px;}
-  .detail-value{font-size:14px;color:var(--white);line-height:1.7;}
+  .detail-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);align-self:start;padding-top:3px;}
+  .detail-value{font-size:14px;color:var(--white);line-height:1.75;}
+  .detail-value a{color:var(--gold-light);text-decoration:none;}
+  .detail-value a:hover{text-decoration:underline;}
   .detail-value.message-text{
     background:var(--navy);border:1px solid var(--border);
-    border-radius:4px;padding:14px;white-space:pre-wrap;font-weight:300;
+    border-radius:4px;padding:16px;white-space:pre-wrap;font-weight:300;font-size:13.5px;
+    line-height:1.8;color:var(--off-white);
   }
   .modal-actions{
-    display:flex;gap:10px;padding:20px 28px;
+    display:flex;gap:10px;padding:22px 32px;
     border-top:1px solid var(--border);
   }
   .btn-mark-read{
-    padding:10px 20px;background:var(--gold);border:none;color:var(--navy);
-    font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;
-    letter-spacing:.1em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
+    padding:11px 22px;background:var(--gold);border:none;color:#fff;
+    font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
   }
   .btn-mark-read:hover{background:var(--gold-light);}
   .btn-delete{
-    padding:10px 20px;background:transparent;border:1px solid rgba(231,76,60,.4);
-    color:#e74c3c;font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;
-    letter-spacing:.1em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
+    padding:11px 22px;background:transparent;border:1px solid rgba(231,76,60,.35);
+    color:#e74c3c;font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
   }
   .btn-delete:hover{background:rgba(231,76,60,.1);}
 
-  /* ── Login overlay ── */
+  /* ── LOGIN OVERLAY ── */
   #login-overlay{
-    position:fixed;inset:0;background:var(--navy);z-index:100;
+    position:fixed;inset:0;z-index:9998;
+    background:linear-gradient(135deg,#0b1a2e 0%,#0d2b1a 50%,#0b1a2e 100%);
     display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .login-wrap{display:flex;flex-direction:column;align-items:center;width:100%;max-width:420px;}
+  .login-logo{
+    width:64px;height:64px;background:var(--gold);border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;font-weight:900;font-size:26px;color:#fff;
+    margin-bottom:28px;box-shadow:0 0 50px rgba(45,140,66,.4);
+    animation:splashPop .6s cubic-bezier(.175,.885,.32,1.275) both;
   }
   .login-card{
     background:var(--navy-mid);border:1px solid var(--border);
-    border-radius:8px;padding:44px 40px;width:100%;max-width:400px;
-    text-align:center;
+    border-radius:8px;padding:44px 40px;width:100%;
+    animation:splashFadeUp .6s .15s ease both;
   }
-  .login-card h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:6px;}
-  .login-card p{font-size:13px;color:var(--muted);margin-bottom:32px;}
-  .login-field{margin-bottom:16px;text-align:left;}
-  .login-field label{display:block;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .login-card h2{
+    font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:700;
+    color:var(--white);margin-bottom:4px;text-align:center;
+  }
+  .login-card h2 em{font-style:italic;color:var(--gold-light);}
+  .login-card .login-sub{
+    font-size:12px;color:var(--text-muted);text-align:center;
+    margin-bottom:36px;letter-spacing:.04em;
+  }
+  .login-field{margin-bottom:18px;}
+  .login-field label{
+    display:block;font-size:10px;font-weight:700;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:8px;
+  }
   .login-field input{
     width:100%;padding:13px 16px;background:var(--navy);border:1px solid var(--border);
-    border-radius:3px;color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;outline:none;
+    border-radius:3px;color:var(--white);font-family:'Barlow',sans-serif;
+    font-size:14px;outline:none;transition:border-color .2s;
   }
   .login-field input:focus{border-color:var(--gold);}
+  .login-field input::placeholder{color:rgba(154,172,190,.35);}
   .btn-login{
-    width:100%;margin-top:8px;padding:14px;background:var(--gold);border:none;
-    color:var(--navy);font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;
-    letter-spacing:.12em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
+    width:100%;margin-top:6px;padding:14px;background:var(--gold);border:none;
+    color:#fff;font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;border-radius:3px;cursor:pointer;
+    transition:background .2s,transform .15s;
   }
-  .btn-login:hover{background:var(--gold-light);}
-  #login-error{color:#e74c3c;font-size:13px;margin-top:12px;display:none;}
+  .btn-login:hover{background:var(--gold-light);transform:translateY(-1px);}
+  #login-error{
+    color:#e74c3c;font-size:13px;margin-top:14px;
+    text-align:center;display:none;padding:10px 16px;
+    background:rgba(231,76,60,.07);border:1px solid rgba(231,76,60,.2);border-radius:3px;
+  }
+  .login-footer{
+    margin-top:20px;font-size:11px;color:var(--text-muted);text-align:center;
+    letter-spacing:.04em;animation:splashFadeUp .6s .3s ease both;
+  }
 
-  /* ── Toast ── */
+  /* ── CALLS TABLE ── */
+  .btn-del-call{
+    padding:5px 13px;background:transparent;border:1px solid rgba(231,76,60,.35);
+    color:#e74c3c;font-size:11px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;
+  }
+  .btn-del-call:hover{background:rgba(231,76,60,.1);}
+
+  /* ── TOAST ── */
   #toast{
-    position:fixed;bottom:32px;right:32px;z-index:200;
-    padding:14px 22px;background:var(--navy-light);border:1px solid var(--border);
+    position:fixed;bottom:32px;right:32px;z-index:600;
+    padding:14px 24px;background:var(--navy-light);border:1px solid var(--border);
     border-radius:4px;font-size:13px;font-weight:500;color:var(--white);
     transform:translateY(80px);opacity:0;transition:.3s;pointer-events:none;
+    font-family:'Barlow',sans-serif;letter-spacing:.02em;
   }
   #toast.show{transform:translateY(0);opacity:1;}
-  #toast.success{border-color:rgba(46,204,113,.4);color:var(--green);}
-  #toast.error{border-color:rgba(231,76,60,.4);color:#e74c3c;}
+  #toast.success{border-color:rgba(46,204,113,.35);color:var(--green);}
+  #toast.error{border-color:rgba(231,76,60,.35);color:#e74c3c;}
 
-  .loading{text-align:center;padding:60px;color:var(--muted);font-size:14px;}
+  /* ── FOOTER ── */
+  footer{
+    background:var(--navy-mid);border-top:1px solid var(--border);
+    padding:28px 5vw;display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:12px;
+  }
+  .footer-brand{display:flex;align-items:center;gap:10px;}
+  .footer-brand span{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);}
+  .footer-copy{font-size:11px;color:var(--text-muted);letter-spacing:.04em;}
 
-  /* ── Scheduled Calls ── */
-  .section-title{font-family:"Barlow Condensed",sans-serif;font-size:1rem;font-weight:700;
-    letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:40px 0 16px;}
-  .calls-table-wrap{background:var(--navy-mid);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
-  .btn-del-call{padding:5px 12px;background:transparent;border:1px solid rgba(231,76,60,.4);
-    color:#e74c3c;font-size:11px;font-weight:700;border-radius:3px;cursor:pointer;transition:.2s;}
-  .btn-del-call:hover{background:rgba(231,76,60,.1);}
+  /* ── RESPONSIVE ── */
+  @media(max-width:900px){
+    .stats-bar{grid-template-columns:1fr 1fr;}
+    .login-card{padding:32px 24px;}
+    header{padding:0 20px;}
+    .container{padding:32px 20px;}
+  }
+  @media(max-width:600px){
+    .stats-bar{grid-template-columns:1fr;}
+    .search-box{width:100%;}
+    .toolbar{flex-direction:column;align-items:stretch;}
+    .filter-btn{text-align:center;}
+    .detail-row{grid-template-columns:1fr;gap:4px;}
+    .admin-badge{display:none;}
+  }
 </style>
 </head>
 <body>
 
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-icon">ES</div>
+  <div class="splash-title">Admin <em>Portal</em></div>
+  <div class="splash-sub">Emkay Surveys Nigeria Limited</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay">
-  <div class="login-card">
-    <div style="font-size:2rem;margin-bottom:16px;">🔐</div>
-    <h2>Admin Portal</h2>
-    <p>Emkay Surveys Nigeria Limited</p>
-    <div class="login-field">
-      <label>Username</label>
-      <input type="text" id="login-user" placeholder="admin" autocomplete="username">
+  <div class="login-wrap">
+    <div class="login-logo">ES</div>
+    <div class="login-card">
+      <h2>Admin <em>Portal</em></h2>
+      <p class="login-sub">Emkay Surveys Nigeria Limited — Secure Access</p>
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="Enter username" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-login" onclick="doLogin()">Sign In →</button>
+      <p id="login-error">Invalid credentials. Please try again.</p>
     </div>
-    <div class="login-field">
-      <label>Password</label>
-      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="btn-login" onclick="doLogin()">Sign In →</button>
-    <p id="login-error">Invalid credentials. Please try again.</p>
+    <p class="login-footer">🔒 Restricted area — authorised personnel only</p>
   </div>
 </div>
 
@@ -225,12 +355,15 @@
 <header>
   <div class="header-logo">
     <div class="logo-box">ES</div>
-    <div>
-      <strong>Emkay Surveys</strong><br>
+    <div class="header-logo-text">
+      <strong>Emkay Surveys</strong>
       <span>Admin Dashboard</span>
     </div>
   </div>
-  <button id="logout-btn" onclick="logout()">Sign Out</button>
+  <div class="header-right">
+    <div class="admin-badge">Live Dashboard</div>
+    <button id="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
 </header>
 
 <!-- MAIN -->
@@ -242,7 +375,7 @@
       <div class="stat-label">Total Enquiries</div>
       <div class="stat-num" id="stat-total">—</div>
     </div>
-    <div class="stat-card unread">
+    <div class="stat-card accent">
       <div class="stat-label">Unread</div>
       <div class="stat-num" id="stat-unread">—</div>
     </div>
@@ -252,15 +385,21 @@
     </div>
   </div>
 
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <button class="filter-btn active" onclick="setFilter('all', this)">All Messages</button>
-    <button class="filter-btn" onclick="setFilter('unread', this)">Unread Only</button>
-    <button class="filter-btn" onclick="loadData()">↻ Refresh</button>
-    <input type="text" class="search-box" placeholder="Search by name, email…" oninput="filterTable(this.value)">
+  <!-- Messages section -->
+  <div class="section-header">
+    <div>
+      <div class="section-label-sm">Inbox</div>
+      <div class="section-title-sm">Contact <em>Messages</em></div>
+      <div class="section-divider" style="margin-top:12px;"></div>
+    </div>
+    <div class="toolbar">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('unread', this)">Unread</button>
+      <button class="filter-btn" onclick="loadData()">↻ Refresh</button>
+      <input type="text" class="search-box" placeholder="Search name, email…" oninput="filterTable(this.value)">
+    </div>
   </div>
 
-  <!-- Table -->
   <div class="table-wrap">
     <div id="table-loading" class="loading">Loading messages…</div>
     <table id="msg-table" style="display:none;">
@@ -276,16 +415,21 @@
       <tbody id="msg-tbody"></tbody>
     </table>
     <div id="empty-state" class="empty-state" style="display:none;">
-      <span style="font-size:2.5rem;">📭</span>
+      <span class="empty-icon">📭</span>
       <p>No messages found.</p>
     </div>
   </div>
-</main>
 
-<!-- SCHEDULED CALLS SECTION -->
-<div class="container" style="padding-top:0;">
-  <div class="section-title">📅 &nbsp; Scheduled Calls</div>
-  <div class="calls-table-wrap">
+  <!-- Scheduled Calls section -->
+  <div class="section-header" style="margin-top:56px;">
+    <div>
+      <div class="section-label-sm">Bookings</div>
+      <div class="section-title-sm">Scheduled <em>Calls</em></div>
+      <div class="section-divider" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
     <div id="calls-loading" class="loading">Loading scheduled calls…</div>
     <table id="calls-table" style="display:none;width:100%;border-collapse:collapse;">
       <thead>
@@ -302,17 +446,18 @@
       <tbody id="calls-tbody"></tbody>
     </table>
     <div id="calls-empty" class="empty-state" style="display:none;">
-      <span style="font-size:2.5rem;">📵</span>
+      <span class="empty-icon">📵</span>
       <p>No scheduled calls yet.</p>
     </div>
   </div>
-</div>
+
+</main>
 
 <!-- MESSAGE MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-header">
-      <h3>📩 &nbsp; Enquiry Details</h3>
+      <h3>📩 &nbsp;Enquiry Details</h3>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
@@ -326,8 +471,17 @@
 <!-- TOAST -->
 <div id="toast"></div>
 
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="logo-box" style="width:30px;height:30px;font-size:12px;">ES</div>
+    <span>Emkay Surveys Nigeria Limited</span>
+  </div>
+  <div class="footer-copy">© 2025 Admin Portal — Restricted Access</div>
+</footer>
+
 <script>
-  const API = '';  // Same origin — change to 'http://localhost:8000' if running separately
+  const API = '';  // Same origin — change to 'http://localhost:8000' for separate dev server
   let authHeader = '';
   let allMessages = [];
   let currentFilter = 'all';
@@ -339,13 +493,12 @@
     const p = document.getElementById('login-pass').value.trim();
     if (!u || !p) return;
     authHeader = 'Basic ' + btoa(u + ':' + p);
-    // Store in session
     sessionStorage.setItem('emkay_auth', authHeader);
     verifyAndLoad();
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !document.getElementById('login-overlay').style.display) doLogin();
+    if (e.key === 'Enter' && document.getElementById('login-overlay').style.display !== 'none') doLogin();
   });
 
   function logout() {
@@ -369,7 +522,6 @@
     sessionStorage.removeItem('emkay_auth');
   }
 
-  // ── On page load, check stored auth ────────────────────────────────────
   window.addEventListener('load', () => {
     const stored = sessionStorage.getItem('emkay_auth');
     if (stored) { authHeader = stored; verifyAndLoad(); }
@@ -382,45 +534,7 @@
     loadCalls();
   }
 
-  // ── Scheduled Calls ────────────────────────────────────────────────────
-  async function loadCalls() {
-    document.getElementById('calls-loading').style.display = 'block';
-    document.getElementById('calls-table').style.display = 'none';
-    document.getElementById('calls-empty').style.display = 'none';
-    try {
-      const r = await fetch(`${API}/api/admin/scheduled-calls`, {headers:{Authorization:authHeader}});
-      const calls = await r.json();
-      const tbody = document.getElementById('calls-tbody');
-      tbody.innerHTML = '';
-      if (!calls.length) {
-        document.getElementById('calls-empty').style.display = 'block';
-      } else {
-        document.getElementById('calls-table').style.display = 'table';
-        calls.forEach(c => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="td-name">${c.name || '—'}</td>
-            <td>${c.phone || '—'}</td>
-            <td class="td-date">${c.date || '—'}</td>
-            <td class="td-date">${c.time || '—'}</td>
-            <td class="td-service">${c.topic || '—'}</td>
-            <td class="td-date">${formatDate(c.submitted_at)}</td>
-            <td><button class="btn-del-call" onclick="deleteCall(${c.id}, this)">Delete</button></td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-    } catch { showToast('Failed to load scheduled calls.', 'error'); }
-    document.getElementById('calls-loading').style.display = 'none';
-  }
-
-  async function deleteCall(id, btn) {
-    if (!confirm('Delete this scheduled call?')) return;
-    await fetch(`${API}/api/admin/scheduled-calls/${id}`, {method:'DELETE', headers:{Authorization:authHeader}});
-    showToast('Deleted ✓', 'success');
-    loadCalls();
-  }
-
+  // ── Stats ──────────────────────────────────────────────────────────────
   async function loadStats() {
     try {
       const r = await fetch(`${API}/api/admin/stats`, {headers:{Authorization:authHeader}});
@@ -431,6 +545,7 @@
     } catch {}
   }
 
+  // ── Messages ───────────────────────────────────────────────────────────
   async function loadMessages() {
     document.getElementById('table-loading').style.display = 'block';
     document.getElementById('msg-table').style.display = 'none';
@@ -444,7 +559,7 @@
       const r = await fetch(url, {headers:{Authorization:authHeader}});
       allMessages = await r.json();
       renderTable(allMessages);
-    } catch (e) {
+    } catch {
       showToast('Failed to load messages.', 'error');
     }
     document.getElementById('table-loading').style.display = 'none';
@@ -491,13 +606,52 @@
     loadMessages();
   }
 
+  // ── Scheduled Calls ────────────────────────────────────────────────────
+  async function loadCalls() {
+    document.getElementById('calls-loading').style.display = 'block';
+    document.getElementById('calls-table').style.display = 'none';
+    document.getElementById('calls-empty').style.display = 'none';
+    try {
+      const r = await fetch(`${API}/api/admin/scheduled-calls`, {headers:{Authorization:authHeader}});
+      const calls = await r.json();
+      const tbody = document.getElementById('calls-tbody');
+      tbody.innerHTML = '';
+      if (!calls.length) {
+        document.getElementById('calls-empty').style.display = 'block';
+      } else {
+        document.getElementById('calls-table').style.display = 'table';
+        calls.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="td-name">${c.name || '—'}</td>
+            <td>${c.phone || '—'}</td>
+            <td class="td-date">${c.date || '—'}</td>
+            <td class="td-date">${c.time || '—'}</td>
+            <td class="td-service">${c.topic || '—'}</td>
+            <td class="td-date">${formatDate(c.submitted_at)}</td>
+            <td><button class="btn-del-call" onclick="deleteCall(${c.id}, this)">Delete</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    } catch { showToast('Failed to load scheduled calls.', 'error'); }
+    document.getElementById('calls-loading').style.display = 'none';
+  }
+
+  async function deleteCall(id, btn) {
+    if (!confirm('Delete this scheduled call?')) return;
+    await fetch(`${API}/api/admin/scheduled-calls/${id}`, {method:'DELETE', headers:{Authorization:authHeader}});
+    showToast('Deleted ✓', 'success');
+    loadCalls();
+  }
+
   // ── Modal ──────────────────────────────────────────────────────────────
   function openModal(m) {
     currentMsgId = m.id;
     const body = document.getElementById('modal-body');
     body.innerHTML = `
       <div class="detail-row"><div class="detail-label">Name</div><div class="detail-value">${m.first_name} ${m.last_name}</div></div>
-      <div class="detail-row"><div class="detail-label">Email</div><div class="detail-value"><a href="mailto:${m.email}" style="color:var(--gold-light)">${m.email}</a></div></div>
+      <div class="detail-row"><div class="detail-label">Email</div><div class="detail-value"><a href="mailto:${m.email}">${m.email}</a></div></div>
       <div class="detail-row"><div class="detail-label">Phone</div><div class="detail-value">${m.phone || '—'}</div></div>
       <div class="detail-row"><div class="detail-label">Service</div><div class="detail-value">${m.service || '—'}</div></div>
       <div class="detail-row"><div class="detail-label">Submitted</div><div class="detail-value">${formatDate(m.submitted_at, true)}</div></div>
@@ -515,6 +669,10 @@
 
   document.getElementById('modal').addEventListener('click', e => {
     if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
   });
 
   async function markRead() {
@@ -537,6 +695,7 @@
 
   // ── Helpers ────────────────────────────────────────────────────────────
   function formatDate(iso, long = false) {
+    if (!iso) return '—';
     const d = new Date(iso);
     if (long) return d.toLocaleString('en-NG', {dateStyle:'long', timeStyle:'short'});
     return d.toLocaleDateString('en-NG', {day:'2-digit', month:'short', year:'numeric'});
