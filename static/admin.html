@@ -302,12 +302,50 @@
   .footer-brand span{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);}
   .footer-copy{font-size:11px;color:var(--text-muted);letter-spacing:.04em;}
 
+  /* ── LIVE CHAT PANEL ── */
+  .live-chat-grid{display:grid;grid-template-columns:300px 1fr;gap:0;background:var(--navy-mid);border:1px solid var(--border);border-radius:6px;overflow:hidden;min-height:480px;}
+  .chat-sessions-list{border-right:1px solid var(--border);overflow-y:auto;}
+  .chat-sessions-header{padding:16px 20px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;justify-content:space-between;}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;animation:pulse 2s infinite;display:inline-block;}
+  .session-item{padding:16px 20px;border-bottom:1px solid rgba(45,140,66,0.08);cursor:pointer;transition:background .15s;position:relative;}
+  .session-item:hover{background:rgba(26,48,80,0.6);}
+  .session-item.active{background:rgba(45,140,66,0.1);border-left:3px solid var(--gold);}
+  .session-item.has-unread::after{content:'';position:absolute;top:18px;right:18px;width:8px;height:8px;border-radius:50%;background:var(--gold-light);}
+  .session-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;}
+  .session-preview{font-size:11.5px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;}
+  .session-time{font-size:10px;color:var(--text-muted);margin-top:4px;}
+  .session-empty{padding:48px 24px;text-align:center;color:var(--text-muted);font-size:13px;font-weight:300;}
+  .chat-panel{display:flex;flex-direction:column;height:480px;}
+  .chat-panel-header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .chat-panel-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.08em;text-transform:uppercase;color:var(--white);}
+  .chat-panel-status{font-size:11px;color:var(--gold);margin-top:2px;}
+  .btn-close-session{padding:5px 13px;background:transparent;border:1px solid rgba(231,76,60,.35);color:#e74c3c;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:.2s;}
+  .btn-close-session:hover{background:rgba(231,76,60,.1);}
+  .chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px;}
+  .chat-messages::-webkit-scrollbar{width:4px;}
+  .chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .chat-bubble{max-width:75%;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.6;}
+  .chat-bubble.user{background:var(--navy-light);color:var(--white);align-self:flex-start;border-bottom-left-radius:2px;}
+  .chat-bubble.admin{background:var(--gold);color:#fff;align-self:flex-end;border-bottom-right-radius:2px;}
+  .chat-bubble.bot{background:rgba(45,140,66,0.08);border:1px solid var(--border);color:var(--text-muted);align-self:flex-start;font-style:italic;}
+  .bubble-time{font-size:10px;opacity:.6;margin-top:4px;}
+  .chat-reply-bar{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--border);}
+  #admin-reply-input{flex:1;background:var(--navy);border:1px solid var(--border);border-radius:20px;padding:10px 16px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;outline:none;resize:none;}
+  #admin-reply-input:focus{border-color:var(--gold);}
+  .btn-send-reply{padding:10px 22px;background:var(--gold);border:none;color:#fff;font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;cursor:pointer;transition:.2s;white-space:nowrap;}
+  .btn-send-reply:hover{background:var(--gold-light);}
+  .chat-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;font-weight:300;gap:12px;}
+  .chat-placeholder .ph-icon{font-size:2.5rem;opacity:.4;}
+  .chat-stats-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(45,140,66,.1);border:1px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;color:var(--gold);margin-left:8px;}
+
   /* ── RESPONSIVE ── */
   @media(max-width:900px){
     .stats-bar{grid-template-columns:1fr 1fr;}
     .login-card{padding:32px 24px;}
     header{padding:0 20px;}
     .container{padding:32px 20px;}
+    .live-chat-grid{grid-template-columns:1fr;}
+    .chat-sessions-list{border-right:none;border-bottom:1px solid var(--border);max-height:200px;}
   }
   @media(max-width:600px){
     .stats-bar{grid-template-columns:1fr;}
@@ -420,6 +458,55 @@
     </div>
   </div>
 
+  <!-- Live Chat section -->
+  <div class="section-header" style="margin-top:56px;">
+    <div>
+      <div class="section-label-sm">Real-Time</div>
+      <div class="section-title-sm">Live <em>Chat Sessions</em>
+        <span class="chat-stats-pill"><span class="live-dot"></span> <span id="active-chat-count">0</span> Active</span>
+      </div>
+      <div class="section-divider" style="margin-top:12px;"></div>
+    </div>
+    <div class="toolbar">
+     <button class="filter-btn active" onclick="typeof refreshChats==='function'&&refreshChats()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="live-chat-grid">
+    <!-- Sessions list -->
+    <div class="chat-sessions-list">
+      <div class="chat-sessions-header">
+        <span>Visitors</span>
+        <span class="live-dot"></span>
+      </div>
+      <div id="sessions-container">
+        <div class="session-empty">No active chat sessions yet.<br>Sessions appear when a visitor<br>clicks "Talk to a Human".</div>
+      </div>
+    </div>
+
+    <!-- Chat panel -->
+    <div class="chat-panel" id="chat-panel">
+      <div class="chat-placeholder" id="chat-placeholder">
+        <span class="ph-icon">💬</span>
+        <span>Select a session to view & reply</span>
+      </div>
+      <div id="chat-panel-active" style="display:none;flex-direction:column;height:100%;">
+        <div class="chat-panel-header">
+          <div>
+            <div class="chat-panel-name" id="panel-visitor-name">—</div>
+            <div class="chat-panel-status" id="panel-status">🟢 Active</div>
+          </div>
+          <button class="btn-close-session" onclick="closeSession()">End Session</button>
+        </div>
+        <div class="chat-messages" id="admin-chat-msgs"></div>
+        <div class="chat-reply-bar">
+          <textarea id="admin-reply-input" rows="1" placeholder="Type your reply…" onkeydown="handleReplyKey(event)"></textarea>
+          <button class="btn-send-reply" onclick="sendAdminReply()">Send →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scheduled Calls section -->
   <div class="section-header" style="margin-top:56px;">
     <div>
@@ -480,6 +567,154 @@
   <div class="footer-copy">© 2025 Admin Portal — Restricted Access</div>
 </footer>
 
+<script type="module">
+  // ── FIREBASE LIVE CHAT ─────────────────────────────────────────────────
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getDatabase, ref, onValue, push, set, update, remove, serverTimestamp, off }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+  // 🔧 REPLACE with your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCP1uB8LDKIOaFUuk6IxIkX9Sh9IWFeE6M",
+    authDomain: "emkay-d4b3e.firebaseapp.com",
+    databaseURL: "https://emkay-d4b3e-default-rtdb.firebaseio.com",
+    projectId: "emkay-d4b3e",
+    storageBucket: "emkay-d4b3e.firebasestorage.app",
+    messagingSenderId: "917852562644",
+    appId: "1:917852562644:web:3578326897ac6c6ecd0741"
+  };
+
+  const app = initializeApp(firebaseConfig, 'admin-chat');
+  const db = getDatabase(app);
+
+  let activeSessionId = null;
+  let sessionsRef = null;
+  let msgsListener = null;
+
+  // Listen to all sessions
+  function startListening() {
+    sessionsRef = ref(db, 'livechats');
+    onValue(sessionsRef, snapshot => {
+      const data = snapshot.val() || {};
+      renderSessions(data);
+    });
+  }
+
+  function renderSessions(data) {
+    const container = document.getElementById('sessions-container');
+    const sessions = Object.entries(data).filter(([,s]) => s.status !== 'closed');
+    document.getElementById('active-chat-count').textContent = sessions.length;
+
+    if (!sessions.length) {
+      container.innerHTML = '<div class="session-empty">No active chat sessions yet.<br>Sessions appear when a visitor<br>clicks "Talk to a Human".</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    sessions.sort((a,b) => (b[1].updatedAt||0) - (a[1].updatedAt||0)).forEach(([id, s]) => {
+      const div = document.createElement('div');
+      div.className = 'session-item' + (id === activeSessionId ? ' active' : '') + (s.adminUnread ? ' has-unread' : '');
+      div.onclick = () => openSession(id, s);
+      const msgs = s.messages ? Object.values(s.messages) : [];
+      const last = msgs[msgs.length - 1];
+      const preview = last ? last.text.substring(0,50) : 'No messages yet';
+      const timeAgo = last ? timeSince(last.ts) : '';
+      div.innerHTML = `
+        <div class="session-name">${s.visitorName || 'Visitor'}</div>
+        <div class="session-preview">${preview}</div>
+        <div class="session-time">${timeAgo}</div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function openSession(id, s) {
+    activeSessionId = id;
+    document.getElementById('chat-placeholder').style.display = 'none';
+    const panelActive = document.getElementById('chat-panel-active');
+    panelActive.style.display = 'flex';
+    document.getElementById('panel-visitor-name').textContent = s.visitorName || 'Visitor';
+    document.getElementById('panel-status').textContent = s.status === 'waiting' ? '⏳ Waiting for reply' : '🟢 Active';
+
+    // Clear unread flag
+    update(ref(db, `livechats/${id}`), { adminUnread: false });
+
+    // Stop old listener
+    if (msgsListener) off(ref(db, `livechats/${activeSessionId}/messages`));
+
+    // Listen to messages
+    const msgsRef = ref(db, `livechats/${id}/messages`);
+    msgsListener = onValue(msgsRef, snap => {
+      const msgs = snap.val() ? Object.values(snap.val()) : [];
+      renderMessages(msgs);
+    });
+
+    // Highlight active
+    document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  function renderMessages(msgs) {
+    const container = document.getElementById('admin-chat-msgs');
+    container.innerHTML = '';
+    msgs.sort((a,b) => a.ts - b.ts).forEach(m => {
+      const div = document.createElement('div');
+      div.className = `chat-bubble ${m.sender}`;
+      div.innerHTML = `${m.text}<div class="bubble-time">${m.sender === 'admin' ? 'You' : m.senderName || 'Visitor'} · ${timeSince(m.ts)}</div>`;
+      container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
+  }
+
+  window.sendAdminReply = async function() {
+    const input = document.getElementById('admin-reply-input');
+    const text = input.value.trim();
+    if (!text || !activeSessionId) return;
+    input.value = '';
+    const msgsRef = ref(db, `livechats/${activeSessionId}/messages`);
+    await push(msgsRef, { sender: 'admin', senderName: 'Emkay Support', text, ts: Date.now() });
+    await update(ref(db, `livechats/${activeSessionId}`), { status: 'active', updatedAt: Date.now(), visitorUnread: true, adminUnread: false });
+  };
+
+  window.handleReplyKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendAdminReply(); }
+  };
+
+  window.closeSession = async function() {
+    if (!activeSessionId || !confirm('End this chat session?')) return;
+    await update(ref(db, `livechats/${activeSessionId}`), { status: 'closed', updatedAt: Date.now() });
+    activeSessionId = null;
+    document.getElementById('chat-placeholder').style.display = 'flex';
+    document.getElementById('chat-panel-active').style.display = 'none';
+    showToast('Session ended.', 'success');
+  };
+
+function refreshChats() {
+  showToast('Refreshed ✓', 'success');
+}
+
+  function timeSince(ts) {
+    if (!ts) return '';
+    const s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+  }
+
+  // Start listening after login
+  const origVerify = window.verifyAndLoad;
+  window.verifyAndLoad = async function() {
+    await origVerify?.();
+    startListening();
+  };
+  // Also start immediately if already logged in
+  window.addEventListener('load', () => {
+    if (sessionStorage.getItem('emkay_auth')) {
+      setTimeout(startListening, 800);
+    }
+  });
+</script>
 <script>
   const API = '';  // Same origin — change to 'http://localhost:8000' for separate dev server
   let authHeader = '';

@@ -353,6 +353,31 @@
     transition:transform .2s,box-shadow .2s;
   }
   #chat-btn:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(45,140,66,.7);}
+
+  /* ── WHATSAPP BUTTON ── */
+  #whatsapp-btn{
+    position:fixed;right:24px;bottom:96px;z-index:400;
+    width:52px;height:52px;border-radius:50%;
+    background:#25D366;border:none;color:#fff;font-size:26px;
+    cursor:pointer;box-shadow:0 4px 20px rgba(37,211,102,.5);
+    display:flex;align-items:center;justify-content:center;
+    text-decoration:none;
+    transition:transform .2s,box-shadow .2s;
+    animation:waPulse 2.5s infinite;
+  }
+  #whatsapp-btn:hover{transform:scale(1.12);box-shadow:0 6px 32px rgba(37,211,102,.7);animation:none;}
+  #whatsapp-tooltip{
+    position:absolute;right:64px;top:50%;transform:translateY(-50%);
+    background:#25D366;color:#fff;font-size:11.5px;font-weight:700;
+    letter-spacing:.06em;white-space:nowrap;padding:5px 12px;
+    border-radius:20px;pointer-events:none;opacity:0;
+    transition:opacity .2s;
+  }
+  #whatsapp-btn:hover #whatsapp-tooltip{opacity:1;}
+  @keyframes waPulse{
+    0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5);}
+    50%{box-shadow:0 4px 32px rgba(37,211,102,.85),0 0 0 8px rgba(37,211,102,.12);}
+  }
   #chat-badge{
     position:absolute;top:-4px;right:-4px;width:18px;height:18px;
     background:#e74c3c;border-radius:50%;font-size:10px;font-weight:700;
@@ -447,7 +472,7 @@
 
 </style>
 </head>
-<body>
+<body class="light">
 
 <!-- SPLASH SCREEN -->
 <div id="splash">
@@ -549,7 +574,7 @@
           <div class="info-row"><div class="info-icon">📍</div><div class="info-content"><label id="info-lbl-hq">Headquarters</label><span><a href="https://www.google.com/maps/search/?api=1&query=Novare+Central+Mall+Wuse+Zone+5+Abuja+Nigeria" target="_blank" style="color:var(--gold-light);text-decoration:none;">201T, Novare Central Mall, Wuse Zone 5, Abuja ↗</a></span></div></div>
           <div class="info-row"><div class="info-icon">🏪</div><div class="info-content"><label id="info-lbl-branches">Branch Offices</label><span>Kano · Kaduna · Katsina · Sokoto</span></div></div>
           <div class="info-row"><div class="info-icon">📞</div><div class="info-content"><label id="info-lbl-phone">Phone Lines</label><span>+234 806 077 2573 &nbsp;|&nbsp; +234 701 885 6666</span></div></div>
-          <div class="info-row"><div class="info-icon">✉️</div><div class="info-content"><label id="lbl-email" id="info-lbl-email">Email Address</label><span>Emkaysurveys@gmail.com</span></div></div>
+          <div class="info-row"><div class="info-icon">✉️</div><div class="info-content"><label id="lbl-email">Email Address</label><span>Emkaysurveys@gmail.com</span></div></div>
         </div>
       </div>
     </div>
@@ -716,7 +741,7 @@
       <div class="form-title" id="form-title-txt">📬 &nbsp; Send Us a Message</div>
       <div id="form-msg" class="form-msg"></div>
       <div class="form-row">
-        <div class="form-group"><label id="lbl-first">First Name</label><input type="text" id="f-first" placeholder="e.g. Aminu"></div>
+        <div class="form-group"><label id="lbl-first">First Name</label><input type="text" id="f-first" placeholder="e.g. Muslim"></div>
         <div class="form-group"><label id="lbl-last">Last Name</label><input type="text" id="f-last" placeholder="e.g. Ibrahim"></div>
       </div>
       <div class="form-group"><label>Email Address</label><input type="email" id="f-email" placeholder="your@email.com"></div>
@@ -775,7 +800,7 @@
     <div class="schedule-body">
       <div id="schedule-done" class="schedule-done"><p id="sc-done-txt">✅ Call scheduled! We'll contact you at the chosen time.</p></div>
       <div id="schedule-form">
-        <div class="form-group"><label id="sc-lbl-name">Your Full Name</label><input type="text" id="sc-name" placeholder="Aminu Ibrahim"></div>
+        <div class="form-group"><label id="sc-lbl-name">Your Full Name</label><input type="text" id="sc-name" placeholder="Muslim Ibrahim"></div>
         <div class="form-group"><label>Phone Number</label><input type="tel" id="sc-phone" placeholder="+234 800 000 0000"></div>
         <div class="form-row">
           <div class="form-group"><label id="sc-lbl-date">Preferred Date</label><input type="date" id="sc-date"></div>
@@ -796,6 +821,10 @@
 </div>
 
 <!-- CHAT WIDGET -->
+<a id="whatsapp-btn" href="https://wa.me/2348060772573?text=Hello%20Emkay%20Surveys%2C%20I%20would%20like%20to%20enquire%20about%20your%20services." target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" fill="#fff"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.47.67 4.84 1.84 6.89L2 30l7.3-1.81A13.93 13.93 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2zm0 25.4a11.4 11.4 0 01-5.8-1.58l-.42-.25-4.33 1.08 1.1-4.22-.27-.44A11.4 11.4 0 014.6 16C4.6 9.7 9.7 4.6 16 4.6S27.4 9.7 27.4 16 22.3 27.4 16 27.4zm6.26-8.54c-.34-.17-2.02-.99-2.33-1.11-.31-.11-.54-.17-.77.17-.23.34-.88 1.11-1.08 1.34-.2.23-.39.25-.73.08-.34-.17-1.44-.53-2.74-1.69-1.01-.9-1.69-2.01-1.89-2.35-.2-.34-.02-.52.15-.69.15-.15.34-.39.51-.59.17-.2.23-.34.34-.57.11-.23.06-.43-.03-.6-.08-.17-.77-1.85-1.05-2.53-.28-.67-.56-.58-.77-.59l-.65-.01c-.23 0-.6.08-.91.43-.31.34-1.19 1.16-1.19 2.84s1.22 3.29 1.39 3.52c.17.23 2.4 3.66 5.81 5.13.81.35 1.44.56 1.93.71.81.26 1.55.22 2.13.13.65-.1 2.02-.82 2.3-1.62.28-.79.28-1.47.2-1.62-.08-.14-.31-.22-.65-.39z"/></svg>
+  <span id="whatsapp-tooltip">Chat on WhatsApp</span>
+</a>
 <button id="chat-btn" onclick="toggleChat()">💬<span id="chat-badge">1</span></button>
 <div id="chat-window">
   <div class="chat-head">
@@ -822,8 +851,9 @@ document.addEventListener('click', function(e) {
 });
 
 window.addEventListener('load', () => {
-  const saved = localStorage.getItem('emkay-theme') || 'dark';
-  applyTheme(saved);
+  const saved = localStorage.getItem('emkay-theme') || 'light';
+  const mode = saved === 'dark' ? 'light' : saved; // always default to light
+  applyTheme(mode);
   setTimeout(showPushPrompt, 5000);
   initChat();
 });
@@ -1377,6 +1407,106 @@ async function requestHuman() {
   document.querySelector('.chat-human-btn').style.display = 'none';
 }
 
+// ── FIREBASE LIVE CHAT ──────────────────────────────────────────────
+let firebaseApp, firebaseDb, liveSessionId, liveSessionRef, liveMsgListener;
+
+async function initFirebase() {
+  if (firebaseApp) return;
+  const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+  const { getDatabase, ref, push, onValue, update, off } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+  // 🔧 REPLACE with your Firebase config
+  const cfg = {
+    apiKey: "AIzaSyCP1uB8LDKIOaFUuk6IxIkX9Sh9IWFeE6M",
+    authDomain: "emkay-d4b3e.firebaseapp.com",
+    databaseURL: "https://emkay-d4b3e-default-rtdb.firebaseio.com",
+    projectId: "emkay-d4b3e",
+    storageBucket: "emkay-d4b3e.firebasestorage.app",
+    messagingSenderId: "917852562644",
+    appId: "1:917852562644:web:3578326897ac6c6ecd0741"
+  };
+  firebaseApp = initializeApp(cfg, 'visitor-chat');
+  firebaseDb = getDatabase(firebaseApp);
+  window._fbRef = ref;
+  window._fbPush = push;
+  window._fbOnValue = onValue;
+  window._fbUpdate = update;
+  window._fbOff = off;
+}
+
+async function startLiveSession(visitorName, phone, enquiry) {
+  await initFirebase();
+  const { ref, push, onValue, update } = { ref: window._fbRef, push: window._fbPush, onValue: window._fbOnValue, update: window._fbUpdate };
+  const sessionsRef = ref(firebaseDb, 'livechats');
+  const sessionData = {
+    visitorName, phone, enquiry,
+    status: 'waiting',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    adminUnread: true,
+    visitorUnread: false
+  };
+  const newSession = await push(sessionsRef, sessionData);
+  liveSessionId = newSession.key;
+  liveSessionRef = ref(firebaseDb, `livechats/${liveSessionId}`);
+
+  // Add opening message from visitor
+  const msgsRef = ref(firebaseDb, `livechats/${liveSessionId}/messages`);
+  await push(msgsRef, { sender: 'user', senderName: visitorName, text: enquiry, ts: Date.now() });
+
+  // Show "waiting" message in chat
+  const waitMsg = {
+    en: `✅ You're connected! Our team has been notified and will reply here shortly.\n\n💬 This chat is now live — type your message below.`,
+    ha: `✅ An haɗa ku! Ƙungiyarmu an sanar da su kuma za su amsa nan ba da jimawa ba.`,
+    fr: `✅ Vous êtes connecté! Notre équipe a été notifiée et répondra sous peu.`,
+    yo: `✅ O ti sopọ! Ẹgbẹ wa ti gba ifiranṣẹ ati yoo dahun laipẹ.`,
+    ig: `✅ Ejikọtara gị! A ọzọ ọ bụ nzaghachi ndị otu anyị na-abịa.`,
+    es: `✅ ¡Estás conectado! Nuestro equipo ha sido notificado y responderá pronto.`,
+    pt: `✅ Você está conectado! Nossa equipe foi notificada e responderá em breve.`,
+    de: `✅ Verbunden! Unser Team wurde benachrichtigt und antwortet bald.`,
+    sw: `✅ Umeunganishwa! Timu yetu imearifiwa na itajibu hivi karibuni.`
+  };
+  addBotMsg(waitMsg[currentLang] || waitMsg.en);
+
+  // Update chat status to show live
+  document.getElementById('chat-status').textContent = '🟡 Live — waiting for agent';
+
+  // Listen for admin replies
+  const msgsRefListen = ref(firebaseDb, `livechats/${liveSessionId}/messages`);
+  let knownKeys = new Set();
+  liveMsgListener = onValue(msgsRefListen, snap => {
+    const data = snap.val();
+    if (!data) return;
+    Object.entries(data).forEach(([key, msg]) => {
+      if (!knownKeys.has(key) && msg.sender === 'admin') {
+        knownKeys.add(key);
+        // Show admin reply in the chatbot UI
+        addAdminMsg(msg.text);
+        update(liveSessionRef, { visitorUnread: false });
+      } else {
+        knownKeys.add(key);
+      }
+    });
+  });
+}
+
+function addAdminMsg(text) {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = `<strong style="color:var(--gold-light);font-size:11px;display:block;margin-bottom:4px;">👤 Emkay Support</strong>${text.replace(/\n/g,'<br>')}`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('chat-status').textContent = '🟢 Agent replied';
+}
+
+async function sendLiveMessage(text) {
+  if (!liveSessionId) return;
+  await initFirebase();
+  const msgsRef = window._fbRef(firebaseDb, `livechats/${liveSessionId}/messages`);
+  await window._fbPush(msgsRef, { sender: 'user', senderName: humanName || 'Visitor', text, ts: Date.now() });
+  await window._fbUpdate(liveSessionRef, { adminUnread: true, updatedAt: Date.now() });
+}
+
 async function handleHumanCapture(text) {
   // Allow user to exit human capture mode at any step
   const cancelWords = ['cancel','exit','stop','back','nevermind','never mind','quit','no thanks',
@@ -1457,22 +1587,12 @@ async function handleHumanCapture(text) {
       sw: `Asante, ${humanName}! ✅ Timu yetu itakupigia simu kwa ${humanPhone} hivi karibuni.`
     };
     addBotMsg(msg[currentLang] || msg.en);
-    try {
-      await fetch(API_BASE + '/api/contact', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          first_name: humanName.split(' ')[0] || humanName,
-          last_name: humanName.split(' ').slice(1).join(' ') || '(Chat)',
-          email: 'chat@emkaysurveys.ng',
-          phone: humanPhone,
-          service: 'Chat Handoff',
-          message: enquiry
-        })
-      });
-    } catch(e) {}
-    humanMode = false; humanStep = 0;
-    const btn = document.getElementById('chat-human-btn');
-    if (btn) btn.style.display = 'block';
+    // Start Firebase live session
+    startLiveSession(humanName, humanPhone, enquiry);
+    humanStep = 4; // live chat mode — keep humanMode = true so messages go through live
+  } else if (humanStep === 4) {
+    // Live chat — send to Firebase
+    sendLiveMessage(text);
   }
 }
 
