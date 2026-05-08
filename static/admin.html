@@ -492,9 +492,13 @@
       </div>
       <div id="chat-panel-active" style="display:none;flex-direction:column;height:100%;">
         <div class="chat-panel-header">
-          <div>
+          <div style="flex:1;min-width:0;">
             <div class="chat-panel-name" id="panel-visitor-name">—</div>
             <div class="chat-panel-status" id="panel-status">🟢 Active</div>
+            <div style="display:flex;gap:18px;margin-top:6px;flex-wrap:wrap;">
+              <div style="font-size:11.5px;color:var(--text-muted);">📞 <span id="panel-phone" style="color:var(--white);font-weight:500;">—</span></div>
+              <div style="font-size:11.5px;color:var(--text-muted);">📋 <span id="panel-enquiry" style="color:var(--white);font-weight:500;">—</span></div>
+            </div>
           </div>
           <button class="btn-close-session" onclick="closeSession()">End Session</button>
         </div>
@@ -621,6 +625,7 @@
       const timeAgo = last ? timeSince(last.ts) : '';
       div.innerHTML = `
         <div class="session-name">${s.visitorName || 'Visitor'}</div>
+        <div class="session-preview" style="color:var(--gold);font-size:11px;">📞 ${s.phone || '—'}</div>
         <div class="session-preview">${preview}</div>
         <div class="session-time">${timeAgo}</div>
       `;
@@ -635,6 +640,8 @@
     panelActive.style.display = 'flex';
     document.getElementById('panel-visitor-name').textContent = s.visitorName || 'Visitor';
     document.getElementById('panel-status').textContent = s.status === 'waiting' ? '⏳ Waiting for reply' : '🟢 Active';
+    document.getElementById('panel-phone').textContent = s.phone || 'Not provided';
+    document.getElementById('panel-enquiry').textContent = s.enquiry || 'Not provided';
 
     // Clear unread flag
     update(ref(db, `livechats/${id}`), { adminUnread: false });
@@ -682,6 +689,13 @@
 
   window.closeSession = async function() {
     if (!activeSessionId || !confirm('End this chat session?')) return;
+    // Notify the visitor by pushing a system message before closing
+    const msgsRef = ref(db, `livechats/${activeSessionId}/messages`);
+    await push(msgsRef, {
+      sender: 'system',
+      text: 'SESSION_ENDED',
+      ts: Date.now()
+    });
     await update(ref(db, `livechats/${activeSessionId}`), { status: 'closed', updatedAt: Date.now() });
     activeSessionId = null;
     document.getElementById('chat-placeholder').style.display = 'flex';
