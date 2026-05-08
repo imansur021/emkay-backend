@@ -1288,442 +1288,334 @@ function hideTyping() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// EMKAY SMART NLP ENGINE v2  (no external API — 100% in-browser)
-// Features:
-//   ✅ Context memory — remembers last topic, handles follow-ups
-//   ✅ Intent confidence scoring with keyword weights
-//   ✅ Fuzzy matching + stemming for typo tolerance
-//   ✅ Negation detection ("not engineering", "no software")
-//   ✅ Multi-intent detection (e.g. "price AND location")
-//   ✅ Entity extraction (city names, service names, numbers)
-//   ✅ Sentiment detection (frustration → empathy response)
-//   ✅ Quick-reply chip buttons after relevant replies
-//   ✅ Auto language detection (11 languages)
-//   ✅ Conversation memory — no repeated greetings
+// EMKAY SMART NLP ENGINE  (no external API — 100% in-browser)
+// Features: auto language detection · fuzzy matching · stemming ·
+//           TF-IDF weighting · context memory · multilingual replies
 // ══════════════════════════════════════════════════════════════════════════
 
-// ── CONVERSATION STATE ────────────────────────────────────────────────────
-var _ctx = {
-  lastIntent: null,       // last matched intent id
-  lastService: null,      // last mentioned service
-  turnCount: 0,           // total turns in session
-  askedServices: false,   // showed services menu already
-  sentiment: 0,           // -3..+3 running sentiment score
-  seenGreeting: false,    // suppress repeated greetings
-};
-
 // ── 1. LANGUAGE DETECTION ────────────────────────────────────────────────
+// Signature words that strongly identify a language
 const LANG_SIGNATURES = {
-  ha: ['sannu','ina','yaya','menene','yaushe','nawa','don','ƙ','ɓ','ɗ','aiki','gida','ofishi','ayyuka','gini','ƙasa','kuɗi','waya'],
-  yo: ['bawo','ẹ','ṣe','ọ','ni','pẹlu','jẹ','tabi','iṣẹ','ile','owo','ilẹ','ẹka','foonu','kini'],
-  ig: ['gịnị','kedu','ọ','bụ','daalụ','ndewo','ebe','onye','ihe','ọrụ','ego','ụlọ','ala','ekwentị'],
-  ar: ['كيف','ما','متى','أين','من','هل','نعم','لا','شكرا','مرحبا','خدمات','سعر','هاتف','معادن'],
-  fr: ['bonjour','merci','comment','quoi','quand','où','qui','oui','non','services','bureau','prix','téléphone'],
-  es: ['hola','gracias','cómo','qué','cuándo','dónde','quién','sí','no','servicios','oficina','precio'],
-  pt: ['olá','obrigado','como','que','quando','onde','quem','sim','não','serviços','preço','telefone'],
+  ha: ['sannu','ina','yaya','menene','yaushe','nawa','don','ƙ','ɓ','ɗ','aiki','gida','kai','shi','ita','mu','su','kuɗi','waya','miye','babu','sai','da','na','ga','ya','ta','ko','amma','lokaci','ofishi','ayyuka','gini','ƙasa'],
+  yo: ['bawo','ẹ','ṣe','ọ','ni','pẹlu','jẹ','tabi','iṣẹ','ile','owo','orukọ','ilẹ','ẹka','foonu','olubasọrọ','ibiti','kini','ṣii','tiipa','idiyè','igba'],
+  ig: ['gịnị','kedu','ọ','bụ','daalụ','ndewo','ebe','onye','ihe','ọrụ','ego','oge','ụlọ','ala','mmadụ','ozi','nọmba','ekwentị'],
+  ar: ['كيف','ما','متى','أين','من','هل','نعم','لا','شكرا','مرحبا','خدمات','مكتب','سعر','هاتف','بريد','موعد','معادن','بناء'],
+  fr: ['bonjour','merci','comment','quoi','quand','où','qui','pourquoi','oui','non','services','bureau','heure','prix','téléphone','adresse'],
+  es: ['hola','gracias','cómo','qué','cuándo','dónde','quién','sí','no','servicios','oficina','precio','teléfono'],
+  pt: ['olá','obrigado','como','que','quando','onde','quem','sim','não','serviços','escritório','preço','telefone'],
   de: ['hallo','danke','wie','was','wann','wo','wer','ja','nein','dienste','büro','preis','telefon'],
-  sw: ['habari','asante','jinsi','nini','lini','wapi','nani','ndiyo','hapana','huduma','ofisi','simu'],
-  zh: ['你好','谢谢','怎么','什么','时候','哪里','谁','是','不','服务','价格','电话'],
-  en: ['hello','hi','hey','thanks','how','what','when','where','who','yes','no','services','office','price','phone','email']
+  sw: ['habari','asante','jinsi','nini','lini','wapi','nani','ndiyo','hapana','huduma','ofisi','bei','simu'],
+  zh: ['你好','谢谢','怎么','什么','时候','哪里','谁','是','不','服务','办公室','价格','电话'],
+  en: ['hello','hi','hey','thanks','how','what','when','where','who','yes','no','services','office','price','phone','email','hours','location']
 };
 
 function detectLang(text) {
+  const t = text.toLowerCase();
+  // Check for Arabic/CJK script first (unambiguous)
   if (/[\u0600-\u06FF]/.test(text)) return 'ar';
   if (/[\u4E00-\u9FFF]/.test(text)) return 'zh';
-  const t = text.toLowerCase();
   let scores = {};
   for (const [lang, sigs] of Object.entries(LANG_SIGNATURES)) {
     scores[lang] = sigs.filter(s => t.includes(s)).length;
   }
+  // Special Hausa letter boost
   if (/[ƙɓɗ]/i.test(text)) scores.ha = (scores.ha||0) + 3;
+  // Yoruba diacritic boost
   if (/[ẹọṣ]/i.test(text)) scores.yo = (scores.yo||0) + 3;
+  // Igbo diacritic boost
   if (/[ụị]/i.test(text)) scores.ig = (scores.ig||0) + 3;
   const best = Object.entries(scores).sort((a,b)=>b[1]-a[1])[0];
-  return (best && best[1] > 0) ? best[0] : null;
+  return (best && best[1] > 0) ? best[0] : null; // null = defer to currentLang
 }
 
-// ── 2. STEMMER ────────────────────────────────────────────────────────────
+// ── 2. STEMMER — strips common suffixes for major languages ──────────────
 function stem(word) {
-  word = word.replace(/(?:ing|tion|tions|ment|ness|ful|ous|ive|able|ible|ical|ical|ed|er|ly|al|ic|es)$/,'');
-  word = word.replace(/(?:nku|nka|nki|nsa|nta|unku)$/,'');
-  word = word.replace(/(?:nia|ana)$/,'');
-  return word.length >= 3 ? word : word;
+  // English
+  word = word.replace(/(?:ing|tion|tions|ed|es|er|ly|ness|ment|ful|ous|ive|able|ible|al|ic|ical)$/,'');
+  // Hausa inflections: -nku -nka -nki -nsa -nta -mu -ku -ta -su
+  word = word.replace(/(?:nku|nka|nki|nsa|nta|unku|n)$/,'');
+  // Yoruba: -ni -le -wa -pe
+  word = word.replace(/(?:ni|le|wa|pe)$/,'');
+  // Swahili: -nia -ana -wa -ka -ku
+  word = word.replace(/(?:nia|ana|wa|ka|ku)$/,'');
+  // Minimum length 3
+  return word.length >= 3 ? word : word + '_';
 }
 
-// ── 3. FUZZY / LEVENSHTEIN ───────────────────────────────────────────────
+// ── 3. FUZZY MATCH — Levenshtein for short words ─────────────────────────
 function levenshtein(a, b) {
   if (Math.abs(a.length - b.length) > 3) return 99;
-  const m = []; const al = a.length; const bl = b.length;
-  for (let i=0;i<=al;i++) m[i]=[i];
-  for (let j=0;j<=bl;j++) m[0][j]=j;
-  for (let i=1;i<=al;i++) for (let j=1;j<=bl;j++)
-    m[i][j]=a[i-1]===b[j-1]?m[i-1][j-1]:1+Math.min(m[i-1][j],m[i][j-1],m[i-1][j-1]);
+  const m = [], al = a.length, bl = b.length;
+  for (let i=0; i<=al; i++) { m[i]=[i]; }
+  for (let j=0; j<=bl; j++) { m[0][j]=j; }
+  for (let i=1; i<=al; i++)
+    for (let j=1; j<=bl; j++)
+      m[i][j] = a[i-1]===b[j-1] ? m[i-1][j-1] : 1+Math.min(m[i-1][j],m[i][j-1],m[i-1][j-1]);
   return m[al][bl];
 }
 
-function fuzzyMatch(haystack, keyword) {
-  if (haystack.includes(keyword)) return true;
-  if (keyword.length < 4) return false;
-  const ks = stem(keyword);
-  for (const w of haystack.split(/\s+/)) {
-    if (stem(w) === ks) return true;
-    const thresh = keyword.length <= 5 ? 1 : keyword.length <= 8 ? 2 : 3;
-    if (levenshtein(w, keyword) <= thresh) return true;
+function fuzzyIncludes(haystack, needle) {
+  if (haystack.includes(needle)) return true;
+  if (needle.length < 4) return false; // skip fuzzy for short words
+  const words = haystack.split(/\s+/);
+  const needleStemmed = stem(needle);
+  for (const w of words) {
+    if (stem(w) === needleStemmed) return true;
+    const thresh = needle.length <= 5 ? 1 : needle.length <= 8 ? 2 : 3;
+    if (levenshtein(w, needle) <= thresh) return true;
   }
   return false;
 }
 
-// ── 4. NEGATION DETECTION ────────────────────────────────────────────────
-// Returns true if the keyword appears in a negated context
-function isNegated(lower, keyword) {
-  const neg = ['not','no','never','without','don\'t','dont','isn\'t','isnt','except','other than'];
-  const idx = lower.indexOf(keyword);
-  if (idx < 0) return false;
-  const before = lower.substring(Math.max(0, idx-30), idx);
-  return neg.some(n => before.includes(n));
-}
+// ── 4. KNOWLEDGE BASE — every intent has multilingual replies ─────────────
+// Structure: { keys: [...], weight: N, reply: { en, ha, yo, ig, ar, fr, es, pt, de, sw, zh } }
+// weight: rare/specific keys score higher than common ones
+const EMKAY_KB = [
+  // Greetings — EN + HA + YO + IG + AR + FR + SW + PT + ES + DE + ZH
+  {keys:['hello','hi','hey','good morning','good afternoon','greetings','assalamu','salam','sannu','nnoo','ek','habari',
+         'barka','yawwa','ina kwana','ina wuni','ina yini','ina lafia', // Hausa
+         'bawo','e kaaro','e kaasan','e ku irole', // Yoruba
+         'ndewo','ututu oma','ehihie oma', // Igbo
+         'مرحبا','السلام عليكم','صباح الخير','مساء الخير','أهلا', // Arabic
+         'bonjour','bonsoir','salut', // French
+         'hola','buenos días','buenas tardes', // Spanish
+         'olá','bom dia','boa tarde', // Portuguese
+         'hallo','guten morgen','guten tag', // German
+         '你好','早上好','下午好', // Chinese
+         'habari','karibu','jambo','mambo'], // Swahili
+   reply:'👋 Welcome to Emkay Surveys Nigeria Limited!\n\nI can help with:\n• Our services\n• Locations & contact details\n• Pricing & quotations\n• Scheduling a call\n\nWhat can I help you with today?'},
 
-// ── 5. SENTIMENT SCANNER ─────────────────────────────────────────────────
-const SENTIMENT = {
-  pos: ['good','great','thanks','thank','helpful','excellent','awesome','perfect','love','nice','appreciate','clear','fast','quick'],
-  neg: ['bad','wrong','terrible','useless','confused','frustrated','not working','no response','annoying','disappointed','slow','unclear','rude']
-};
-function getSentiment(lower) {
-  let score = 0;
-  SENTIMENT.pos.forEach(w => { if (lower.includes(w)) score++; });
-  SENTIMENT.neg.forEach(w => { if (lower.includes(w)) score--; });
-  return score;
-}
+  // Services overview
+  {keys:['service','what do you do','offer','survey','contracting','engineering','mineral','software','prospecting',
+         'ayyuka','ayyukanku','aikin','aikiyin','miye aikinku','menene ayyukanku','me kuke yi','abin da kuke yi','ayyukan emkay', // Hausa
+         'iṣẹ','kini o ṣe','ohun ti e nse', // Yoruba
+         'ọrụ','ihe unu na-eme','gwa m maka', // Igbo
+         'خدمات','ماذا تفعلون','ما هي خدماتكم', // Arabic
+         'services','que faites vous', // French
+         'huduma','mnafanya nini'], // Swahili
+   reply:'🏗️ Emkay Surveys offers 5 services:\n\n🗺️ Consultant Surveying\n🏗️ General Contracting\n⚙️ Engineering\n🔭 Mineral Prospecting\n💻 Software Development\n\nWhich would you like to know more about?'},
 
-// ── 6. ENTITY EXTRACTOR ──────────────────────────────────────────────────
-const ENTITIES = {
-  services: {
-    surveying:    ['survey','surveying','land survey','boundary','topo','topograph','beaconing','mapping','cadastral','gis','gps','binciken ƙasa','iwadi ilẹ','nyocha ala','مسح','مساحة','arpentage','upimaji'],
-    contracting:  ['contract','contracting','construction','build','builder','road','building','gini','ikọle','owuwu','مقاول','bâtiment','ujenzi','ukandarasi'],
-    engineering:  ['engineer','engineering','structural','structure','civil','design','infrastructure','injiniya','ẹrọ','injinịa','هندسة','ingénierie','uhandisi'],
-    prospecting:  ['mineral','mining','geology','geological','prospect','prospecting','exploration','geophysical','sub-surface','ma\'adini','alumọni','mgbubi','معادن','minerai','madini'],
-    software:     ['software','app','application','website','web','system','database','digital','tech','gis system','kwamfuta','sọfitiwia','kọmputa','برمجيات','logiciel','programu'],
-  },
-  cities: ['abuja','kano','kaduna','katsina','sokoto','lagos','port harcourt'],
-};
+  // Land surveying
+  {keys:['land','boundary','topo','topographic','beaconing','mapping','cadastral','gis','gps',
+         'ƙasa','iyaka','taswirar ƙasa','binciken ƙasa', // Hausa
+         'ilẹ','ala ilẹ','iwadi ilẹ', // Yoruba
+         'ala ọhịa','ala obodo','nleba anya ala', // Igbo
+         'أرض','مسح','حدود','خرائط', // Arabic
+         'terrain','bornage','topographie', // French
+         'ardhi','mipaka','upimaji'], // Swahili
+   reply:'🗺️ Consultant Surveying covers:\n\n• Land boundary surveys & beaconing\n• Topographic & cadastral surveys\n• GPS & GIS mapping\n• Expert witness services\n\n📞 +234 806 077 2573 for a quote!'},
 
-function extractEntities(lower) {
-  const found = { services: [], cities: [] };
-  for (const [svc, words] of Object.entries(ENTITIES.services)) {
-    if (words.some(w => fuzzyMatch(lower, w)) && !isNegated(lower, words.find(w => lower.includes(w))||'')) {
-      found.services.push(svc);
-    }
-  }
-  ENTITIES.cities.forEach(c => { if (lower.includes(c)) found.cities.push(c); });
-  return found;
-}
+  // Contracting / construction
+  {keys:['construction','build','contract','contractor','project','infrastructure','road','building',
+         'gini','gina','aikin gini','kwantiragio','gine gine', // Hausa
+         'ikọle','kọ ile','àgbátọ̀','iṣẹ ikọle', // Yoruba
+         'ihe owuwu','owuwu','ụlọ','ụzọ', // Igbo
+         'بناء','مقاول','مشروع','إنشاء','طريق', // Arabic
+         'construction','bâtiment','entrepreneur','bâtir', // French
+         'ujenzi','jenzi','mradi','miundombinu'], // Swahili
+   reply:'🏗️ General Contracting handles:\n\n• Civil & structural construction\n• Site preparation & supervision\n• Project management\n• Infrastructure development\n\n📞 +234 806 077 2573'},
 
-// ── 7. QUICK-REPLY CHIPS ──────────────────────────────────────────────────
-// Renders clickable suggestion chips below a bot message
-function addQuickReplies(chips) {
-  if (!chips || chips.length === 0) return;
-  const msgs = document.getElementById('chat-msgs');
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:7px;padding:4px 0 8px 0;';
-  chips.forEach(function(chip) {
-    const btn = document.createElement('button');
-    btn.textContent = chip;
-    btn.style.cssText = 'padding:6px 13px;border:1px solid var(--border);border-radius:16px;background:transparent;color:var(--gold);font-size:12px;font-family:"Barlow",sans-serif;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap;';
-    btn.onmouseover = function(){ this.style.background='rgba(45,140,66,.12)'; };
-    btn.onmouseout  = function(){ this.style.background='transparent'; };
-    btn.onclick = function() {
-      wrap.remove();
-      document.getElementById('chat-input').value = chip;
-      sendChat();
-    };
-    wrap.appendChild(btn);
-  });
-  msgs.appendChild(wrap);
-  msgs.scrollTop = msgs.scrollHeight;
-}
+  // Mineral prospecting
+  {keys:['mineral','geology','geological','mining','prospect','exploration','resource',
+         'ma\'adini','bincike','haƙar ma\'adini','ƙarfe','ƙarfen ƙasa', // Hausa
+         'ohun alumọni','iwakusa','iwadi ile', // Yoruba
+         'ihe mgbubi','nleba ala ala ọcha', // Igbo
+         'معادن','تعدين','جيولوجيا','استكشاف', // Arabic
+         'minerai','géologie','prospection', // French
+         'madini','uchunguzi wa madini'], // Swahili
+   reply:'🔭 Mineral Prospecting includes:\n\n• Geological & sub-surface surveys\n• Mineral resource exploration\n• Site assessment & soil analysis\n• Feasibility reports\n\n📧 Emkaysurveys@gmail.com'},
 
-// ── 8. INTENT KNOWLEDGE BASE ──────────────────────────────────────────────
-// Each intent: { id, weight, patterns[], reply, chips[] }
-// weight: higher = preferred when tied. patterns are scored by fuzzy match.
-const INTENTS = [
+  // Software development
+  {keys:['software','app','application','website','system','develop','tech','digital','database',
+         'manhaja','shirin kwamfuta','fasaha','kwamfuta', // Hausa
+         'sọfitiwia','imọ ẹrọ','eto','oju opo wẹẹbu', // Yoruba
+         'ngwaọrụ kọmputa','ọrụ teknụzụ', // Igbo
+         'برمجيات','تطبيق','موقع','تقنية','نظام', // Arabic
+         'logiciel','développement','application', // French
+         'programu','tovuti','mfumo'], // Swahili
+   reply:'💻 Software Development builds:\n\n• Custom web & mobile applications\n• GIS & mapping systems\n• Data management platforms\n\n📧 Emkaysurveys@gmail.com'},
 
-  // ── GREETING ──
-  { id:'greeting', weight:1,
-    patterns:['hello','hi','hey','good morning','good afternoon','good evening','greetings','salam','sannu','nnoo','bawo','ndewo','مرحبا','السلام','bonjour','hola','olá','hallo','habari','karibu','jambo','你好','早上好'],
-    reply(ctx) {
-      if (ctx.seenGreeting) return { text:'👋 Welcome back! What can I help you with?\n\n💡 Ask me about our services, pricing, locations, or book a call.', chips:['Services','Pricing','Location','Book a call'] };
-      ctx.seenGreeting = true;
-      return { text:'👋 Hello! Welcome to **Emkay Surveys Nigeria Limited**.\n\nI\'m your smart assistant. I can help with:\n🗺️ Our 5 services\n💰 Pricing & quotes\n📍 Office locations\n📅 Booking a call\n\nWhat brings you here today?', chips:['Our services','Get a quote','Find our office','Book a call'] };
-    }
-  },
+  // Locations / offices
+  {keys:['location','where','address','office','branch','headquarter','hq','abuja','kano','kaduna','katsina','sokoto',
+         'ina','inda','ofishi','hedkwata','reshen ofishi','waye','yaya','wuye','wuse', // Hausa
+         'ibiti','adirẹsi','ile-iṣẹ','ẹka','ibudó', // Yoruba
+         'ebe','adreesi','ụlọ ọrụ','alaka', // Igbo
+         'أين','عنوان','مكتب','مقر','فرع', // Arabic
+         'où','adresse','bureau','siège','succursale', // French
+         'wapi','mahali','ofisi','tawi','makao'], // Swahili
+   reply:'📍 Emkay Surveys offices:\n\n🏢 HEAD OFFICE:\n201T, Novare Central Mall, Wuse Zone 5, Abuja, FCT\n\n📌 BRANCHES:\n• Kano State\n• Kaduna State\n• Katsina State\n• Sokoto State'},
 
-  // ── SERVICES MENU ──
-  { id:'services_menu', weight:2,
-    patterns:['services','what do you do','what do you offer','your services','list services','all services','ayyuka','menene ayyukanku','iṣẹ wa','ọrụ anyị','ماذا تفعلون','ما هي خدماتكم','que faites vous','huduma zetu','mnafanya nini','what can you do','capabilities'],
-    reply(ctx) {
-      ctx.askedServices = true;
-      return { text:'🏗️ Emkay Surveys offers **5 core services**:\n\n🗺️ Consultant Surveying\n🏗️ General Contracting\n⚙️ Engineering\n🔭 Mineral Prospecting\n💻 Software Development\n\nTap a service below for details 👇', chips:['🗺️ Surveying','🏗️ Contracting','⚙️ Engineering','🔭 Prospecting','💻 Software'] };
-    }
-  },
+  // Phone / contact
+  {keys:['phone','call','number','contact','reach','whatsapp','telephone',
+         'waya','wayar','lambar','tuntuɓe','sadarwa','kira','karfe waya', // Hausa
+         'foonu','nọmba','olubasọrọ','pe wa', // Yoruba
+         'ekwentị','nọmba','kpọọ','kpọtụrụ', // Igbo
+         'هاتف','رقم','اتصال','تواصل','واتساب', // Arabic
+         'téléphone','numéro','appeler','contacter', // French
+         'simu','nambari','wasiliana','piga'], // Swahili
+   reply:'📞 Contact Emkay Surveys:\n\n• +234 806 077 2573\n• +234 701 885 6666\n\n📧 Emkaysurveys@gmail.com\n\n🕘 Mon–Fri, 8:00 AM – 5:00 PM'},
 
-  // ── SURVEYING ──
-  { id:'surveying', weight:3,
-    patterns:['survey','surveying','land survey','boundary','topograph','beaconing','mapping','cadastral','gis','gps','binciken ƙasa','iwadi ilẹ','nyocha ala','مسح','مساحة','arpentage','upimaji wa ardhi','demarcation','land title','beacon'],
-    reply(ctx) {
-      ctx.lastService = 'surveying';
-      return { text:'🗺️ **Consultant Surveying** — our flagship service:\n\n✅ Land boundary surveys & beaconing\n✅ Topographic & cadastral surveys\n✅ GPS/GIS mapping & digital terrain modelling\n✅ Expert witness & legal boundary services\n✅ Land title documentation\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com', chips:['Get a quote','Other services','Book a call'] };
-    }
-  },
+  // Email
+  {keys:['email','mail','message','enquiry','inquiry','write',
+         'imel','wasika','saƙo','rubuta','tambaya', // Hausa
+         'ifiranṣẹ','kọ','ibeere', // Yoruba
+         'ozi','ozi nzacha','dezie','ozi emeela', // Igbo
+         'بريد','رسالة','إيميل','استفسار', // Arabic
+         'courriel','courrier','écrire','message', // French
+         'barua pepe','ujumbe','andika'], // Swahili
+   reply:'📧 Send your enquiry to: Emkaysurveys@gmail.com\n\nOr use the contact form on this page. We respond within 1 business day.'},
 
-  // ── CONTRACTING ──
-  { id:'contracting', weight:3,
-    patterns:['contract','contracting','construction','build','builder','building','road','contractor','site','project management','gini','ikọle','owuwu','مقاول','bâtiment','ujenzi','ukandarasi','civil works','renovation'],
-    reply(ctx) {
-      ctx.lastService = 'contracting';
-      return { text:'🏗️ **General Contracting** — end-to-end delivery:\n\n✅ Civil & structural construction\n✅ Site preparation & clearing\n✅ Project & construction management\n✅ Road & drainage infrastructure\n✅ Renovation & building works\n\n📞 +234 806 077 2573', chips:['Get a quote','Other services','Book a call'] };
-    }
-  },
+  // Business hours
+  {keys:['hour','open','time','working','when','available','close','business hour',
+         'lokaci','lokacin aiki','lokacin','sa\'a','yaushe','awa nawa','aiki lokaci','lokacin buɗewa','lokacin rufe','buɗe','rufe','suna buɗe','suna rufe', // Hausa
+         'wakati','igba','igba ṣiṣẹ','nigbati','ṣii','tiipa', // Yoruba
+         'oge','mgbe','oge ọrụ','oge mmeghe', // Igbo
+         'ساعات','وقت','متاح','مفتوح','مغلق','متى', // Arabic
+         'heure','horaire','quand','ouvert','fermé', // French
+         'wakati','saa','lini','wazi','imefungwa'], // Swahili
+   reply:'🕘 Business Hours:\n\nMonday – Friday: 8:00 AM – 5:00 PM\n\nClosed on weekends and public holidays.'},
 
-  // ── ENGINEERING ──
-  { id:'engineering', weight:3,
-    patterns:['engineer','engineering','structural','structure','civil','mechanical','design','infrastructure','technical','injiniya','ẹrọ','injinịa','هندسة','ingénierie','uhandisi','analysis','analyse','load','foundation','blueprint'],
-    reply(ctx) {
-      ctx.lastService = 'engineering';
-      return { text:'⚙️ **Engineering** — precision & design:\n\n✅ Structural design & analysis\n✅ Civil & mechanical engineering\n✅ Infrastructure development\n✅ Foundation & load assessments\n✅ Technical consulting & reports\n✅ Construction supervision\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com', chips:['Get a quote','Other services','Book a call'] };
-    }
-  },
+  // Pricing / quote
+  {keys:['price','cost','how much','fee','charge','rate','quote','pricing','budget','money',
+         'kuɗi','nawa','farashi','darajar','lissafi','aro','tsada','arha', // Hausa
+         'idiyè','owó','iye','iye owó','kia ni owo', // Yoruba
+         'ọnụ ahịa','ọnụ','ego','ole ego','ole ọnụ', // Igbo
+         'سعر','تكلفة','كم يكلف','رسوم','ميزانية','عرض', // Arabic
+         'prix','coût','combien','tarif','devis','budget', // French
+         'bei','gharama','pesa','ngapi','bajeti'], // Swahili
+   reply:'💰 Pricing at Emkay Surveys:\n\nRates depend on project scope.\n\nTo get a quote:\n✅ Call +234 806 077 2573\n✅ Email Emkaysurveys@gmail.com\n✅ Fill the contact form below'},
 
-  // ── PROSPECTING ──
-  { id:'prospecting', weight:3,
-    patterns:['mineral','mining','geology','geological','prospect','prospecting','exploration','geophysical','sub-surface','ma\'adini','alumọni','معادن','minerai','madini','ore','resource','soil','borehole','site assessment','feasibility'],
-    reply(ctx) {
-      ctx.lastService = 'prospecting';
-      return { text:'🔭 **Mineral Prospecting** — what lies beneath:\n\n✅ Geological & geophysical surveys\n✅ Sub-surface investigations\n✅ Mineral resource exploration\n✅ Borehole siting & soil analysis\n✅ Site assessment & feasibility reports\n✅ Environmental impact surveys\n\n📧 Emkaysurveys@gmail.com\n📞 +234 806 077 2573', chips:['Get a quote','Other services','Book a call'] };
-    }
-  },
+  // Registration
+  {keys:['rc','registration','registered','cac','license','licensed',
+         'rijista','rajista','lasisi','shedar','takaddun lasisi', // Hausa
+         'iforukọsilẹ','iwe-aṣẹ','iwe imo', // Yoruba
+         'ndebanye aha','akwụkwọ ọrụ','ikike', // Igbo
+         'تسجيل','رخصة','مرخص','شهادة', // Arabic
+         'enregistrement','licence','certifié', // French
+         'usajili','leseni','cheti'], // Swahili
+   reply:'✅ Emkay Surveys Nigeria Limited is fully registered.\n\n• RC Number: 6951225\n• CAC Registered\n• Professional licensed surveyors & engineers'},
 
-  // ── SOFTWARE ──
-  { id:'software', weight:3,
-    patterns:['software','app','application','website','web','system','database','digital','tech','gis system','kwamfuta','sọfitiwia','برمجيات','logiciel','programu','platform','portal','mobile','dashboard','automation','data management'],
-    reply(ctx) {
-      ctx.lastService = 'software';
-      return { text:'💻 **Software Development** — smart solutions:\n\n✅ Custom web & mobile applications\n✅ GIS & geospatial data platforms\n✅ Land record management systems\n✅ Engineering project dashboards\n✅ Government & enterprise portals\n✅ Data automation & reporting tools\n\n📧 Emkaysurveys@gmail.com\n📞 +234 806 077 2573', chips:['Get a quote','Other services','Book a call'] };
-    }
-  },
+  // Scheduling / appointment
+  {keys:['schedule','book','appointment','meet','call back','callback','arrange',
+         'alƙawari','shirya','tanadi','yi alƙawari','sanya', // Hausa
+         'ṣe ipade','ipade','eto ipade', // Yoruba
+         'kpee oge','oge nzukọ','hazie', // Igbo
+         'موعد','حجز','جدولة','ترتيب','اتصل بي', // Arabic
+         'rendez-vous','réserver','planifier','rappel', // French
+         'miadi','weka','kupanga'], // Swahili
+   reply:'📅 To schedule a call:\n\nClick the "📅 Book Call" button in the navigation bar.\n\nOr call us: 📞 +234 806 077 2573'},
 
-  // ── PRICING / QUOTE ──
-  { id:'pricing', weight:3,
-    patterns:['price','cost','how much','fee','charge','rate','quote','pricing','budget','money','afford','expensive','cheap','kuɗi','nawa','farashi','idiyè','ọnụ','سعر','تكلفة','كم','prix','coût','bei','gharama','ngapi','报价','多少钱'],
-    reply(ctx) {
-      const svcHint = ctx.lastService ? ` for **${ctx.lastService}**` : '';
-      return { text:`💰 Pricing${svcHint} at Emkay Surveys:\n\nOur rates depend on **project scope, location, and complexity**. We never quote blindly — every project gets a tailored estimate.\n\nTo get your free quote:\n📞 Call: +234 806 077 2573\n📧 Email: Emkaysurveys@gmail.com\n📋 Or fill our contact form on this page\n\nWe respond within 1 business day.`, chips:['Book a call','Send an email','Find our office'] };
-    }
-  },
+  // Experience / history
+  {keys:['experience','how long','years','history','established','founded',
+         'gogewa','shekara nawa','tsohon','tarihi','lokacin da', // Hausa
+         'iriri','igba melo','itan','ọjọ ori', // Yoruba
+         'ahụmahụ','oge ole','akụkọ ihe mere eme', // Igbo
+         'خبرة','تاريخ','منذ متى','سنوات','تأسيس', // Arabic
+         'expérience','depuis combien','années','histoire', // French
+         'uzoefu','miaka ngapi','historia'], // Swahili
+   reply:'🏆 Emkay Surveys is an experienced firm with a proven track record across Nigeria, serving government agencies, corporations, and individuals.'},
 
-  // ── LOCATION / OFFICES ──
-  { id:'location', weight:2,
-    patterns:['location','where','address','office','branch','headquarter','hq','abuja','kano','kaduna','katsina','sokoto','ina ofishi','ofishi','wuse','novare','ebe','adreesi','أين','عنوان','مكتب','où','adresse','wapi','mahali','makao'],
-    reply(ctx, entities) {
-      const city = entities.cities[0];
-      if (city && city !== 'abuja') {
-        return { text:`📍 Emkay Surveys has a **branch office in ${city.charAt(0).toUpperCase()+city.slice(1)} State**.\n\nFor exact address and contact, reach us:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com`, chips:['Head office address','Call us','All locations'] };
-      }
-      return { text:'📍 **Emkay Surveys Offices:**\n\n🏢 HEAD OFFICE:\n201T, Novare Central Mall, Wuse Zone 5, Abuja, FCT\n\n📌 BRANCH OFFICES:\n• Kano State\n• Kaduna State\n• Katsina State\n• Sokoto State\n\n📞 +234 806 077 2573', chips:['Get directions','Call us','Book a site visit'] };
-    }
-  },
+  // Thanks / positive
+  {keys:['thank','thanks','appreciate','grateful','great','awesome','excellent',
+         'na gode','na godewa','godiya','nagode','mafi kyau', // Hausa
+         'e dupe','o dara','daradara','o seun', // Yoruba
+         'daalụ','ọ dị mma','ọ mma','ọ kacha mma', // Igbo
+         'شكرا','شكراً','ممتاز','رائع','جيد جداً', // Arabic
+         'merci','excellent','super','bien','parfait', // French
+         'asante','vizuri','sawa','bora'], // Swahili
+   reply:'😊 Thank you! Is there anything else I can help you with?'},
 
-  // ── PHONE / CONTACT ──
-  { id:'contact', weight:2,
-    patterns:['phone','call','number','contact','reach','whatsapp','telephone','waya','lambar','foonu','kpọtụrụ','هاتف','رقم','téléphone','simu','nambari','wasiliana','联系','电话'],
-    reply(ctx) {
-      return { text:'📞 **Reach Emkay Surveys:**\n\n📱 +234 806 077 2573\n📱 +234 701 885 6666\n📧 Emkaysurveys@gmail.com\n💬 WhatsApp available on those numbers\n\n🕘 Mon–Fri: 8:00 AM – 5:00 PM', chips:['Book a call','Send an email','Our location'] };
-    }
-  },
+  // Goodbye
+  {keys:['bye','goodbye','see you','later','done','nothing else',
+         'sai an jima','sai gobe','ban da wani abu','ina tafiya','yawwa sai', // Hausa
+         'o daro','o dabọ','a pade','ma a pade', // Yoruba
+         'ka ọ','o ka','ọzọ na-adịghị','ka emesia', // Igbo
+         'وداعا','مع السلامة','إلى اللقاء','انتهيت', // Arabic
+         'au revoir','à bientôt','c\'est tout','bonne journée', // French
+         'kwaheri','tutaonana','basi','haya sawa'], // Swahili
+   reply:'👋 Thank you for visiting Emkay Surveys! We look forward to working with you.\n\n📞 +234 806 077 2573 | Emkaysurveys@gmail.com'},
 
-  // ── EMAIL ──
-  { id:'email', weight:2,
-    patterns:['email','mail','enquiry','inquiry','write','message us','send','imel','wasika','saƙo','ifiranṣẹ','ozi','بريد','rسالة','courriel','barua pepe','ujumbe','邮件'],
-    reply(ctx) {
-      return { text:'📧 **Email us anytime:**\n\nEmkaysurveys@gmail.com\n\nWe respond within **1 business day**.\n\nFor faster response, call:\n📞 +234 806 077 2573', chips:['Call instead','Book a call','Our location'] };
-    }
-  },
+  // Human handoff
+  {keys:['human','person','agent','staff','talk','speak','representative','someone',
+         'mutum','wani mutum','ma\'aikaci','yin magana da mutum','tattauna', // Hausa
+         'eniyan','ẹnikan','oṣiṣẹ','sọrọ pẹlu eniyan', // Yoruba
+         'mmadụ','onye ọrụ','ikwu okwu na mmadụ', // Igbo
+         'إنسان','شخص','موظف','التحدث مع شخص','ممثل', // Arabic
+         'humain','personne','agent','parler à quelqu\'un', // French
+         'binadamu','mtu','mfanyakazi','zungumza na mtu'], // Swahili
+   reply:'🤝 Sure! Click the "👤 Talk to a human" button below and our team will get in touch directly.'},
 
-  // ── BUSINESS HOURS ──
-  { id:'hours', weight:2,
-    patterns:['hour','open','close','working hours','business hours','when are you','available','time','lokaci','yaushe','igba ṣiṣẹ','oge ọrụ','ساعات','مفتوح','heure','wakati','saa','营业时间'],
-    reply(ctx) {
-      return { text:'🕘 **Business Hours:**\n\nMonday – Friday: 8:00 AM – 5:00 PM\n\n🚫 Closed on weekends & public holidays\n\n⚡ Outside hours? Leave us a message:\n📧 Emkaysurveys@gmail.com\n\nWe\'ll reply first thing the next business day.', chips:['Send an email','Book a call'] };
-    }
-  },
+  // Nigeria / identity
+  {keys:['nigeria','nigerian','naija',
+         'najeriya','ƙasar najeriya', // Hausa
+         'naijiria','orile naijeria', // Yoruba
+         'naịjịrịa','mba naịjịrịa', // Igbo
+         'نيجيريا','الشركة','شركة نيجيرية', // Arabic
+         'nigéria','entreprise nigériane', // French
+         'nigeria','kampuni ya nigeria'], // Swahili
+   reply:'🇳🇬 Emkay Surveys is a 100% Nigerian-owned company!\n\nHead office in Abuja with branches in Kano, Kaduna, Katsina, and Sokoto.'},
 
-  // ── REGISTRATION / CREDIBILITY ──
-  { id:'registration', weight:3,
-    patterns:['rc','registration','registered','cac','license','licensed','certified','accredited','legit','genuine','trust','credential','rijista','lasisi','iforukọsilẹ','ndebanye','تسجيل','رخصة','enregistrement','usajili','注册'],
-    reply(ctx) {
-      return { text:'✅ **Emkay Surveys is fully registered & licensed:**\n\n🏛️ RC Number: **6951225**\n📋 CAC Registered Company\n🎓 Professional licensed surveyors & engineers\n🌍 Member — FIG Africa Regional Network\n🏅 Fellow of Nigerian Institution of Surveyors (fnis)\n\nYou\'re in safe, professional hands.', chips:['Meet the CEO','Our services','Get a quote'] };
-    }
-  },
-
-  // ── SCHEDULE / BOOK CALL ──
-  { id:'schedule', weight:2,
-    patterns:['schedule','book','appointment','meet','call back','callback','arrange','visit','alƙawari','shirya','ipade','oge nzukọ','موعد','حجز','rendez-vous','réserver','miadi','weka','预约','约'],
-    reply(ctx) {
-      return { text:'📅 **Book a call with Emkay Surveys:**\n\nClick the **"📅 Book Call"** button in the top navigation bar — it takes under 1 minute.\n\nOr call us directly:\n📞 +234 806 077 2573\n📞 +234 701 885 6666\n\nWe\'ll confirm your preferred time right away.', chips:['Call us now','Send an email'] };
-    }
-  },
-
-  // ── EXPERIENCE / ABOUT ──
-  { id:'experience', weight:2,
-    patterns:['experience','how long','years','history','established','founded','background','track record','portfolio','gogewa','shekara','tarihi','iriri','خبرة','تاريخ','expérience','uzoefu','经验'],
-    reply(ctx) {
-      return { text:'🏆 **About Emkay Surveys:**\n\nWe are a **full-service Nigerian surveying & engineering firm** headquartered in Abuja with nationwide reach.\n\n🌟 Led by **Surv. Amb. M.M. Kabir** — Chairperson, FIG Africa Regional Network\n🇳🇬 100% Nigerian-owned\n📍 5 offices across Nigeria\n🎓 Licensed & CAC-registered\n\nOur clients include government agencies, corporations, and private individuals.', chips:['Our services','Meet the CEO','Locations'] };
-    }
-  },
-
-  // ── CEO / LEADERSHIP ──
-  { id:'ceo', weight:3,
-    patterns:['ceo','founder','director','md','managing director','kabir','ambassador','leadership','who runs','who owns','chairman','surv','shugaba','darakta','olori','onye isi','المدير','مؤسس','directeur','mkurugenzi','总裁','创始人'],
-    reply(ctx) {
-      return { text:'👤 **Surv. Amb. M.M. Kabir** — Founder & MD/CEO\n\n🌍 Chairperson, FIG Africa Regional Network\n🏅 Fellow of Nigerian Institution of Surveyors (fnis)\n🎓 Member of National Institute (mni) — NIPSS, Kuru graduate\n🏆 Recognised "Icon of Nation Building"\n🌐 UN Global Geospatial Knowledge Centre partner\n\nHis leadership defines Emkay\'s standard of precision and integrity.', chips:['Our services','Company registration','Get a quote'] };
-    }
-  },
-
-  // ── NIGERIA / IDENTITY ──
-  { id:'nigeria', weight:2,
-    patterns:['nigeria','nigerian','naija','najeriya','naijiria','naịjịrịa','نيجيريا','nigéria','kampuni ya nigeria','100%','owned','local'],
-    reply(ctx) {
-      return { text:'🇳🇬 **Emkay Surveys is proudly 100% Nigerian-owned!**\n\nHeadquartered in Abuja with branches in:\n• Kano • Kaduna • Katsina • Sokoto\n\nWe serve government, corporations, and individuals across all of Nigeria.', chips:['Our services','Locations','Get a quote'] };
-    }
-  },
-
-  // ── THANKS ──
-  { id:'thanks', weight:1,
-    patterns:['thank','thanks','appreciate','grateful','helpful','great help','na gode','e dupe','daalụ','شكرا','merci','asante','gracias','obrigado','danke','谢谢'],
-    reply(ctx) {
-      const extras = ctx.lastService ? [`More about ${ctx.lastService}`, 'Get a quote'] : ['Our services','Get a quote'];
-      return { text:'😊 You\'re welcome! Happy to help.\n\nIs there anything else I can assist you with?', chips:[...extras,'Book a call'] };
-    }
-  },
-
-  // ── GOODBYE ──
-  { id:'bye', weight:1,
-    patterns:['bye','goodbye','see you','later','done','nothing else','sai an jima','sai gobe','o daro','ka ọ','وداعا','au revoir','kwaheri','adiós','tchau','tschüss','再见'],
-    reply(ctx) {
-      return { text:'👋 Thank you for visiting Emkay Surveys!\n\nWe look forward to working with you. Don\'t hesitate to reach out anytime.\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com', chips:[] };
-    }
-  },
-
-  // ── HUMAN HANDOFF ──
-  { id:'human', weight:2,
-    patterns:['human','person','agent','staff','real person','speak to someone','talk to someone','representative','mutum','ma\'aikaci','eniyan','oṣiṣẹ','mmadụ','onye ọrụ','إنسان','شخص','humain','personne','binadamu','mtu','人工'],
-    reply(ctx) {
-      return { text:'🤝 Of course! Our team is ready to help.\n\nClick **"👤 Talk to a human"** button below — one of our staff will connect with you directly via live chat.\n\nOr call us now:\n📞 +234 806 077 2573', chips:[] };
-    }
-  },
-
-  // ── NOT HELPFUL / FRUSTRATION ──
-  { id:'frustration', weight:4,
-    patterns:['not helpful','not useful','useless','wrong answer','that\'s wrong','incorrect','doesn\'t help','still confused','don\'t understand','bad bot','terrible','not what i asked','repeat','repeating','same answer'],
-    reply(ctx) {
-      return { text:'🙏 I\'m sorry that wasn\'t helpful! Let me do better.\n\nTry asking something like:\n• "How much does surveying cost?"\n• "Where is your Kano office?"\n• "What is mineral prospecting?"\n\nOr connect directly:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com', chips:['Talk to a human','Our services','Book a call'] };
-    }
-  },
+  // No answer / empty response — catch "babu amsa" type inputs
+  {keys:['babu amsa','babu','babu wani','ba amsa','babu amfani','ba abin','saƙo','dawo',
+         'no answer','not working','no response','not responding'],
+   reply:'🙏 I\'m sorry if my previous response wasn\'t helpful.\n\nFor direct assistance:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOr click "👤 Talk to a human" below.'},
 ];
 
-// ── 9. CONTEXT-AWARE FOLLOW-UP RESOLVER ──────────────────────────────────
-// Handles short replies like "yes", "tell me more", "how much", "ok"
-function resolveFollowUp(lower, ctx) {
-  const affirmatives = ['yes','yeah','yep','sure','ok','okay','go on','tell me more','more','details','explain','continue','and','also','what else','how','how much'];
-  const isAffirm = affirmatives.some(w => lower.trim() === w || lower.trim().startsWith(w));
-
-  if (isAffirm && ctx.lastIntent) {
-    // "how much" / "price" follow-up after a service
-    if (['how much','price','cost','fee','rate','quote'].some(w => lower.includes(w))) {
-      return INTENTS.find(i => i.id === 'pricing');
-    }
-    // "tell me more" / "yes" → elaborate on last service
-    if (ctx.lastService && ['surveying','contracting','engineering','prospecting','software'].includes(ctx.lastIntent)) {
-      return null; // will re-fire same intent below
-    }
-    // After services menu, "yes" → show menu again with chips
-    if (ctx.lastIntent === 'services_menu') return INTENTS.find(i => i.id === 'services_menu');
+function emkayBot(text) {
+  var lower = text.toLowerCase().replace(/[^\p{L}\p{N} ]/gu, ' ');
+  var best = null, bestScore = 0;
+  for (var i = 0; i < EMKAY_KB.length; i++) {
+    var score = EMKAY_KB[i].keys.filter(function(k){ return lower.includes(k); }).length;
+    if (score > bestScore) { bestScore = score; best = EMKAY_KB[i]; }
   }
-  return null;
-}
+  if (best) return best.reply;
 
-// ── 10. MAIN BOT FUNCTION ────────────────────────────────────────────────
-function emkayBot(rawText) {
-  _ctx.turnCount++;
-  const lower = rawText.toLowerCase().replace(/[^\p{L}\p{N}' ]/gu, ' ').replace(/\s+/g,' ').trim();
+  // Language-aware question words for the "great question" branch
+  const questionWords = {
+    en: ['how','what','when','where','who','why','which'],
+    ha: ['yaya','menene','yaushe','ina','wane','wa','me','don me','wanda','abin da','miye'],
+    yo: ['bawo','kini','nigba','ibo','tani','kilo','ewo','kini idi'],
+    ig: ['ole','gịnị','kedu','ọ bụ','onye','mgbe','ebe','ihe'],
+    ar: ['كيف','ما','متى','أين','من','لماذا','ماذا','هل'],
+    fr: ['comment','quoi','quand','où','qui','pourquoi','quel','est-ce'],
+    es: ['cómo','qué','cuándo','dónde','quién','por qué','cuál'],
+    pt: ['como','que','quando','onde','quem','porque','qual'],
+    de: ['wie','was','wann','wo','wer','warum','welche'],
+    sw: ['jinsi','nini','lini','wapi','nani','kwa nini','ipi','je'],
+    zh: ['怎么','什么','什么时候','哪里','谁','为什么','哪个']
+  };
+  const qWords = (questionWords[currentLang] || questionWords.en).concat(questionWords.en);
+  const isQuestion = qWords.some(function(w){ return lower.includes(w); });
 
-  // Detect & update language
-  const detectedLang = detectLang(rawText);
-  if (detectedLang) currentLang = detectedLang;
+  const fallbackQuestion = {
+    en: 'Great question! For the most accurate answer:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOr click "👤 Talk to a human" below!',
+    ha: 'Tambaya mai kyau! Don amsa mafi daidai:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nKuma danna "👤 Magana da mutum" a ƙasa!',
+    yo: 'Ibeere ti o dara! Fun idahun ti o pe julọ:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nTabi tẹ "👤 Sọrọ pẹlu eniyan" ni isalẹ!',
+    ig: 'Ajụjụ dị mma! Maka azịza kachasị ziri ezi:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nMa ọ bụ pịa "👤 Kwuo okwu na mmadụ" n\'okpuru!',
+    ar: 'سؤال رائع! للحصول على أدق إجابة:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nأو انقر على "👤 التحدث مع شخص" أدناه!',
+    fr: 'Bonne question! Pour la réponse la plus précise:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOu cliquez sur "👤 Parler à un agent" ci-dessous!',
+    es: '¡Buena pregunta! Para la respuesta más precisa:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\n¡O haz clic en "👤 Hablar con una persona" abajo!',
+    pt: 'Boa pergunta! Para a resposta mais precisa:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOu clique em "👤 Falar com uma pessoa" abaixo!',
+    de: 'Gute Frage! Für die genaueste Antwort:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOder klicken Sie unten auf "👤 Mit einer Person sprechen"!',
+    sw: 'Swali zuri! Kwa jibu sahihi zaidi:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nAu bonyeza "👤 Zungumza na mtu" chini!',
+    zh: '好问题！获取最准确的答案：\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\n或点击下方"👤 与人交谈"！'
+  };
+  const fallbackGeneral = {
+    en: 'Thank you for your message! 😊\n\nFor assistance:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOr click "👤 Talk to a human" below.',
+    ha: 'Na gode da saƙonku! 😊\n\nDon taimako:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nKuma danna "👤 Magana da mutum" a ƙasa.',
+    yo: 'E dupe fun ifiranṣẹ rẹ! 😊\n\nFun iranlọwọ:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nTabi tẹ "👤 Sọrọ pẹlu eniyan" ni isalẹ.',
+    ig: 'Daalụ maka ozi gị! 😊\n\nMaka enyemaka:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nMa ọ bụ pịa "👤 Kwuo okwu na mmadụ" n\'okpuru.',
+    ar: 'شكراً على رسالتك! 😊\n\nللمساعدة:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nأو انقر على "👤 التحدث مع شخص" أدناه.',
+    fr: 'Merci pour votre message! 😊\n\nPour de l\'aide:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOu cliquez sur "👤 Parler à un agent" ci-dessous.',
+    es: '¡Gracias por su mensaje! 😊\n\nPara asistencia:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nO haga clic en "👤 Hablar con una persona" abajo.',
+    pt: 'Obrigado pela sua mensagem! 😊\n\nPara assistência:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOu clique em "👤 Falar com uma pessoa" abaixo.',
+    de: 'Danke für Ihre Nachricht! 😊\n\nFür Unterstützung:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOder klicken Sie unten auf "👤 Mit einer Person sprechen".',
+    sw: 'Asante kwa ujumbe wako! 😊\n\nKwa msaada:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nAu bonyeza "👤 Zungumza na mtu" chini.',
+    zh: '感谢您的留言！😊\n\n如需帮助：\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\n或点击下方"👤 与人交谈"。'
+  };
 
-  // Sentiment tracking
-  _ctx.sentiment = Math.max(-3, Math.min(3, _ctx.sentiment + getSentiment(lower)));
-
-  // Entity extraction
-  const entities = extractEntities(lower);
-
-  // If entities found a specific service and user asked for info — route directly
-  if (entities.services.length === 1 && lower.split(' ').length <= 3) {
-    const svcIntent = INTENTS.find(i => i.id === entities.services[0]);
-    if (svcIntent) {
-      _ctx.lastIntent = svcIntent.id;
-      const result = svcIntent.reply(_ctx, entities);
-      setTimeout(() => addQuickReplies(result.chips), 50);
-      return result.text;
-    }
-  }
-
-  // Try follow-up resolution first
-  const followUp = resolveFollowUp(lower, _ctx);
-  if (followUp) {
-    _ctx.lastIntent = followUp.id;
-    const result = followUp.reply(_ctx, entities);
-    setTimeout(() => addQuickReplies(result.chips), 50);
-    return result.text;
-  }
-
-  // Score all intents
-  let best = null, bestScore = 0;
-  for (const intent of INTENTS) {
-    let score = 0;
-    for (const pattern of intent.patterns) {
-      if (fuzzyMatch(lower, pattern) && !isNegated(lower, pattern)) {
-        // Longer/more specific patterns score higher
-        score += pattern.split(' ').length + (intent.weight || 1);
-      }
-    }
-    if (score > bestScore) { bestScore = score; best = intent; }
-  }
-
-  // Minimum confidence threshold — must match at least one pattern meaningfully
-  if (best && bestScore >= 2) {
-    _ctx.lastIntent = best.id;
-    const result = best.reply(_ctx, entities);
-    setTimeout(() => addQuickReplies(result.chips), 50);
-    return result.text;
-  }
-
-  // ── SMART FALLBACK ────────────────────────────────────────────────────
-  // Frustrated user?
-  if (_ctx.sentiment <= -1) {
-    _ctx.sentiment = 0;
-    return '🙏 I\'m sorry for the confusion! Our team can help directly:\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOr click "👤 Talk to a human" below.';
-  }
-
-  // Question with no match → offer suggestions
-  const qWords = ['how','what','when','where','who','why','which','can','do','does','is','are','yaya','menene','ina','yaushe','كيف','ما','متى','أين','comment','quoi','jinsi','nini'];
-  if (qWords.some(w => lower.startsWith(w) || lower.includes(' '+w+' '))) {
-    setTimeout(() => addQuickReplies(['Our services','Pricing','Location','Book a call']), 50);
-    return 'Great question! I might not have the exact answer, but our team will.\n\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com\n\nOr try one of these 👇';
-  }
-
-  // Generic fallback
-  setTimeout(() => addQuickReplies(['Our services','Pricing','Location','Talk to a human']), 50);
-  return 'I want to make sure I give you the right answer! 😊\n\nCould you rephrase, or pick a topic below?\n\nAlternatively:\n📞 +234 806 077 2573\n📧 Emkaysurveys@gmail.com';
+  if (isQuestion) return fallbackQuestion[currentLang] || fallbackQuestion.en;
+  return fallbackGeneral[currentLang] || fallbackGeneral.en;
 }
 
 async function sendChat() {
@@ -1743,7 +1635,7 @@ async function sendChat() {
     hideTyping();
     const reply = emkayBot(text);
     addBotMsg(reply);
-  }, 400);
+  }, 600);
 }
 
 async function requestHuman() {
@@ -2326,18 +2218,7 @@ ar:{flag:'🇸🇦',name:'AR',
 'footer-h-services':'الخدمات','footer-h-offices':'مكاتبنا','footer-tagline':'نقدم خدمات المساحة والهندسة والبرمجيات في جميع أنحاء نيجيريا.','footer-copy':'© 2025 Emkay Surveys Nigeria Limited. جميع الحقوق محفوظة.',
 'mv-mission-label':'مهمتنا','mv-mission-title':'تقديم <em>الدقة</em> بهدف','mv-mission-text':'توفير حلول مساحة وهندسة وتقنية عالمية المستوى تمكّن الأفراد والشركات والمؤسسات الحكومية في جميع أنحاء نيجيريا — بالتزام راسخ تجاه الدقة والنزاهة والتسليم في الوقت المحدد.',
 'mv-vision-label':'رؤيتنا','mv-vision-title':'أكثر شركات المساحة <em>موثوقية</em> في نيجيريا','mv-vision-text':'أن نكون الشركة الرائدة في المساحة والهندسة في نيجيريا — معروفة بالتميز المهني والابتكار التقني والأثر الدائم الذي نخلقه في كل مجتمع نخدمه.',
-'mv-values-title':'<em>قيمنا</em> الأساسية','mv-val-1':'النزاهة','mv-val-2':'الدقة','mv-val-3':'العميل أولاً','mv-val-4':'الابتكار','mv-val-5':'الفخر النيجيري','mv-val-6':'الالتزام بالمواعيد',
-'ceo-section-label':'القيادة','ceo-section-title':'تعرف على <em>المؤسس والمدير التنفيذي</em>','ceo-tap-hint':'اضغط الصورة لعرض الإنجازات','ceo-tag':'المؤسس &amp; المدير التنفيذي',
-'ceo-bio-lbl-1':'قيادة عالمية في علوم المعلومات الجغرافية','ceo-bio-title-1':'رئيس، <em>الشبكة الإقليمية الأفريقية لـ FIG</em>',
-'ceo-bio-text-1':'في Emkay Surveys، يُستلهم التزامنا بالدقة من المعايير العالمية ورؤية Surv. Amb. M.M Kabir. بوصفه شخصية رائدة في مجتمع المعلومات الجغرافية الدولي، يضمن عمله أن يظل مهنة المساحة في أفريقيا تنافسية ومبتكرة ومنسجمة مع أفضل الممارسات العالمية.',
-'ceo-bio-lbl-2':'قيادة الأجندة الجغرافية المكانية الأفريقية',
-'ceo-bio-text-2':'بعد مسيرة مهنية متميزة في القيادة التنظيمية، يشغل Surv. Amb. Kabir منصب <strong>رئيس الشبكة الإقليمية الأفريقية للاتحاد الدولي للمساحين (FIG)</strong>. وفي هذه الصفة، يقود جهود تحديث حوكمة الأراضي والمعايير المهنية في القارة.',
-'ceo-bio-lbl-3':'رؤية للتميز في القطاع الخاص',
-'ceo-achievements-1':'<li><strong>التحول الرقمي:</strong> دعم التحول نحو المساحة المدعومة بتكنولوجيا المعلومات وتطبيقات GIS.</li><li><strong>بناء القدرات:</strong> توجيه الجيل القادم عبر شبكة المساحين الشباب.</li><li><strong>التعاون الدولي:</strong> تمثيل المصالح الأفريقية في المنتديات العالمية رفيعة المستوى بما فيها الأمم المتحدة.</li>',
-'ceo-bio-lbl-4':'التميزات المهنية',
-'ceo-achievements-2':'<li><strong>زميل المؤسسة النيجيرية للمساحين (fnis)</strong> — مُمنح تقديرًا للمساهمات مدى الحياة والإتقان التقني.</li><li><strong>عضو المعهد الوطني (mni)</strong> — خريج NIPSS، كورو.</li><li><strong>سفير عالمي</strong> — معترف به بوصفه "رمزًا لبناء الأمة".</li>',
-'ceo-quote-text':'"في Emkay Surveys، نُجسّد النزاهة المهنية والبُعد النظري التقني الذي يُدافع عنه Surv. Amb. M.M. Kabir على الساحة العالمية."',
-'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ إغلاق'
+'mv-values-title':'<em>قيمنا</em> الأساسية','mv-val-1':'النزاهة','mv-val-2':'الدقة','mv-val-3':'العميل أولاً','mv-val-4':'الابتكار','mv-val-5':'الفخر النيجيري','mv-val-6':'الالتزام بالمواعيد'
 },
 es:{flag:'🇪🇸',name:'ES',
 'nav-about':'Nosotros','nav-services':'Servicios','nav-locations':'Ubicaciones','nav-contact':'Contacto','nav-quote':'Cotizar','nav-book':'📅 Agendar Llamada',
@@ -2374,18 +2255,7 @@ es:{flag:'🇪🇸',name:'ES',
 'footer-h-services':'Servicios','footer-h-offices':'Nuestras Oficinas','footer-tagline':'Ofrecemos topografía, ingeniería y software en toda Nigeria.','footer-copy':'© 2025 Emkay Surveys Nigeria Limited. Todos los derechos reservados.',
 'mv-mission-label':'Nuestra Misión','mv-mission-title':'Entregando <em>Precisión</em> con Propósito','mv-mission-text':'Proveer soluciones de topografía, ingeniería y tecnología de clase mundial que empoderan a personas, empresas e instituciones gubernamentales en toda Nigeria — con un compromiso inquebrantable con la exactitud, la integridad y la entrega puntual.',
 'mv-vision-label':'Nuestra Visión','mv-vision-title':'La Empresa Topográfica más <em>Confiable</em> de Nigeria','mv-vision-text':'Ser la empresa líder de topografía e ingeniería en Nigeria — reconocida por nuestra excelencia profesional, innovación tecnológica y el impacto duradero que creamos en cada comunidad a la que servimos.',
-'mv-values-title':'Nuestros <em>Valores</em> Fundamentales','mv-val-1':'Integridad','mv-val-2':'Precisión','mv-val-3':'Cliente Primero','mv-val-4':'Innovación','mv-val-5':'Orgullo Nigeriano','mv-val-6':'Puntualidad',
-'ceo-section-label':'Liderazgo','ceo-section-title':'Conoce a Nuestro <em>Fundador y MD/CEO</em>','ceo-tap-hint':'Toca la foto para ver logros','ceo-tag':'Fundador &amp; MD/CEO',
-'ceo-bio-lbl-1':'Liderazgo Global en Ciencias Geoespaciales','ceo-bio-title-1':'Presidente, <em>Red Regional Africana de FIG</em>',
-'ceo-bio-text-1':'En Emkay Surveys, nuestro compromiso con la precisión está inspirado en los estándares globales y la visión de Surv. Amb. M.M Kabir. Como figura destacada en la comunidad geoespacial internacional, su trabajo garantiza que la profesión de la topografía en África siga siendo competitiva, innovadora y alineada con las mejores prácticas mundiales.',
-'ceo-bio-lbl-2':'Impulsando la Agenda Geoespacial Africana',
-'ceo-bio-text-2':'Tras una distinguida carrera en liderazgo regulatorio, Surv. Amb. Kabir se desempeña como <strong>Presidente de la Red Regional Africana de la Federación Internacional de Topógrafos (FIG)</strong>. En este cargo, lidera esfuerzos para modernizar la gobernanza territorial y los estándares profesionales en todo el continente.',
-'ceo-bio-lbl-3':'Una Visión para la Excelencia del Sector Privado',
-'ceo-achievements-1':'<li><strong>Transformación Digital:</strong> Promoviendo la transición a la topografía basada en TIC y aplicaciones GIS.</li><li><strong>Desarrollo de Capacidades:</strong> Mentorando a la próxima generación a través de la Red de Jóvenes Topógrafos.</li><li><strong>Colaboración Internacional:</strong> Representando los intereses africanos en foros globales de alto nivel, incluidas las Naciones Unidas.</li>',
-'ceo-bio-lbl-4':'Distinciones Profesionales',
-'ceo-achievements-2':'<li><strong>Miembro de la Institución Nigeriana de Topógrafos (fnis)</strong> — Otorgado por contribuciones de por vida y maestría técnica.</li><li><strong>Miembro del Instituto Nacional (mni)</strong> — Egresado del NIPSS, Kuru.</li><li><strong>Embajador Global</strong> — Reconocido como un "Ícono de la Construcción Nacional".</li>',
-'ceo-quote-text':'"En Emkay Surveys, encarnamos la integridad profesional y la visión técnica que Surv. Amb. M.M. Kabir defiende en el escenario global."',
-'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Cerrar'
+'mv-values-title':'Nuestros <em>Valores</em> Fundamentales','mv-val-1':'Integridad','mv-val-2':'Precisión','mv-val-3':'Cliente Primero','mv-val-4':'Innovación','mv-val-5':'Orgullo Nigeriano','mv-val-6':'Puntualidad'
 },
 pt:{flag:'🇧🇷',name:'PT',
 'nav-about':'Sobre Nós','nav-services':'Serviços','nav-locations':'Localizações','nav-contact':'Contato','nav-quote':'Solicitar Orçamento','nav-book':'📅 Agendar Chamada',
@@ -2422,18 +2292,7 @@ pt:{flag:'🇧🇷',name:'PT',
 'footer-h-services':'Serviços','footer-h-offices':'Nossos Escritórios','footer-tagline':'Fornecendo topografia, engenharia e software em toda a Nigéria.','footer-copy':'© 2025 Emkay Surveys Nigeria Limited. Todos os direitos reservados.',
 'mv-mission-label':'Nossa Missão','mv-mission-title':'Entregando <em>Precisão</em> com Propósito','mv-mission-text':'Fornecer soluções de topografia, engenharia e tecnologia de classe mundial que capacitam indivíduos, empresas e instituições governamentais em toda a Nigéria — com um compromisso inabalável com a exatidão, a integridade e a entrega pontual.',
 'mv-vision-label':'Nossa Visão','mv-vision-title':'A Empresa Topográfica mais <em>Confiável</em> da Nigéria','mv-vision-text':'Ser a principal empresa de topografia e engenharia na Nigéria — reconhecida pela excelência profissional, inovação tecnológica e o impacto duradouro que criamos em cada comunidade que servimos.',
-'mv-values-title':'Nossos <em>Valores</em> Fundamentais','mv-val-1':'Integridade','mv-val-2':'Precisão','mv-val-3':'Foco no Cliente','mv-val-4':'Inovação','mv-val-5':'Orgulho Nigeriano','mv-val-6':'Pontualidade',
-'ceo-section-label':'Liderança','ceo-section-title':'Conheça Nosso <em>Fundador e MD/CEO</em>','ceo-tap-hint':'Toque na foto para ver conquistas','ceo-tag':'Fundador &amp; MD/CEO',
-'ceo-bio-lbl-1':'Liderança Global em Ciências Geoespaciais','ceo-bio-title-1':'Presidente, <em>Rede Regional Africana da FIG</em>',
-'ceo-bio-text-1':'Na Emkay Surveys, nosso compromisso com a precisão é inspirado pelos padrões globais e pela visão de Surv. Amb. M.M Kabir. Como figura de destaque na comunidade geoespacial internacional, seu trabalho garante que a profissão de topografia na África permaneça competitiva, inovadora e alinhada com as melhores práticas mundiais.',
-'ceo-bio-lbl-2':'Impulsionando a Agenda Geoespacial Africana',
-'ceo-bio-text-2':'Após uma carreira distinta em liderança regulatória, Surv. Amb. Kabir atua como <strong>Presidente da Rede Regional Africana da Federação Internacional de Topógrafos (FIG)</strong>. Nessa função, lidera esforços para modernizar a governança fundiária e os padrões profissionais em todo o continente.',
-'ceo-bio-lbl-3':'Uma Visão para a Excelência do Setor Privado',
-'ceo-achievements-1':'<li><strong>Transformação Digital:</strong> Promovendo a transição para topografia baseada em TIC e aplicações GIS.</li><li><strong>Capacitação:</strong> Orientando a próxima geração através da Rede de Jovens Topógrafos.</li><li><strong>Colaboração Internacional:</strong> Representando os interesses africanos em fóruns globais de alto nível, incluindo as Nações Unidas.</li>',
-'ceo-bio-lbl-4':'Distinções Profissionais',
-'ceo-achievements-2':'<li><strong>Membro da Instituição Nigeriana de Topógrafos (fnis)</strong> — Concedido por contribuições vitalícias e maestria técnica.</li><li><strong>Membro do Instituto Nacional (mni)</strong> — Graduado do NIPSS, Kuru.</li><li><strong>Embaixador Global</strong> — Reconhecido como um "Ícone da Construção Nacional".</li>',
-'ceo-quote-text':'"Na Emkay Surveys, incorporamos a integridade profissional e a visão técnica defendidas por Surv. Amb. M.M. Kabir no cenário global."',
-'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Fechar'
+'mv-values-title':'Nossos <em>Valores</em> Fundamentais','mv-val-1':'Integridade','mv-val-2':'Precisão','mv-val-3':'Foco no Cliente','mv-val-4':'Inovação','mv-val-5':'Orgulho Nigeriano','mv-val-6':'Pontualidade'
 },
 de:{flag:'🇩🇪',name:'DE',
 'nav-about':'Über Uns','nav-services':'Leistungen','nav-locations':'Standorte','nav-contact':'Kontakt','nav-quote':'Angebot Anfordern','nav-book':'📅 Anruf Buchen',
@@ -2470,18 +2329,7 @@ de:{flag:'🇩🇪',name:'DE',
 'footer-h-services':'Leistungen','footer-h-offices':'Unsere Büros','footer-tagline':'Vermessung, Ingenieurbau und Softwarelösungen in ganz Nigeria.','footer-copy':'© 2025 Emkay Surveys Nigeria Limited. Alle Rechte vorbehalten.',
 'mv-mission-label':'Unsere Mission','mv-mission-title':'<em>Präzision</em> mit Zweck liefern','mv-mission-text':'Weltklasse-Lösungen in Vermessung, Ingenieurbau und Technologie bereitzustellen, die Einzelpersonen, Unternehmen und Regierungsinstitutionen in Nigeria stärken — mit einem unerschütterlichen Engagement für Genauigkeit, Integrität und pünktliche Lieferung.',
 'mv-vision-label':'Unsere Vision','mv-vision-title':'Nigerias <em>vertrauenswürdigstes</em> Vermessungsunternehmen','mv-vision-text':'Das führende Vermessungs- und Ingenieurbüro in Nigeria zu sein — bekannt für professionelle Exzellenz, technologische Innovation und den nachhaltigen Einfluss, den wir in jeder Gemeinschaft schaffen, der wir dienen.',
-'mv-values-title':'Unsere <em>Kernwerte</em>','mv-val-1':'Integrität','mv-val-2':'Präzision','mv-val-3':'Kundenorientierung','mv-val-4':'Innovation','mv-val-5':'Nigerianischer Stolz','mv-val-6':'Pünktlichkeit',
-'ceo-section-label':'Führung','ceo-section-title':'Unser <em>Gründer &amp; MD/CEO</em>','ceo-tap-hint':'Foto antippen, um Errungenschaften zu sehen','ceo-tag':'Gründer &amp; MD/CEO',
-'ceo-bio-lbl-1':'Globale Führung in Geowissenschaften','ceo-bio-title-1':'Vorsitzender, <em>FIG Afrika-Regionalnetzwerk</em>',
-'ceo-bio-text-1':'Bei Emkay Surveys wird unser Engagement für Präzision von den globalen Standards und der Vision von Surv. Amb. M.M Kabir inspiriert. Als führende Persönlichkeit in der internationalen Geospatial-Gemeinschaft stellt seine Arbeit sicher, dass der Vermessungsberuf in Afrika wettbewerbsfähig, innovativ und an weltbeste Praktiken angelehnt bleibt.',
-'ceo-bio-lbl-2':'Vorantreiben der Afrikanischen Geospatial-Agenda',
-'ceo-bio-text-2':'Nach einer ausgezeichneten Karriere in der regulatorischen Führung fungiert Surv. Amb. Kabir als <strong>Vorsitzender des Afrika-Regionalnetzwerks der Internationalen Vereinigung der Vermessungsingenieure (FIG)</strong>. In dieser Funktion leitet er Bemühungen zur Modernisierung der Bodenordnung und der Berufsstandards auf dem Kontinent.',
-'ceo-bio-lbl-3':'Eine Vision für Exzellenz im Privatsektor',
-'ceo-achievements-1':'<li><strong>Digitale Transformation:</strong> Förderung des Übergangs zu ICT-gesteuerter Vermessung und GIS-Anwendungen.</li><li><strong>Kapazitätsaufbau:</strong> Mentoring der nächsten Generation durch das Young Surveyors Network.</li><li><strong>Internationale Zusammenarbeit:</strong> Vertretung afrikanischer Interessen auf hochrangigen globalen Foren, einschließlich der Vereinten Nationen.</li>',
-'ceo-bio-lbl-4':'Berufliche Auszeichnungen',
-'ceo-achievements-2':'<li><strong>Fellow der Nigerianischen Institution der Vermessungsingenieure (fnis)</strong> — Verliehen für lebenslange Beiträge und technische Meisterschaft.</li><li><strong>Mitglied des Nationalen Instituts (mni)</strong> — Absolvent des NIPSS, Kuru.</li><li><strong>Globaler Botschafter</strong> — Anerkannt als „Ikone des Nationenaufbaus".</li>',
-'ceo-quote-text':'"Bei Emkay Surveys verkörpern wir die professionelle Integrität und den technischen Weitblick, den Surv. Amb. M.M. Kabir auf der Weltbühne vertritt."',
-'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Schließen'
+'mv-values-title':'Unsere <em>Kernwerte</em>','mv-val-1':'Integrität','mv-val-2':'Präzision','mv-val-3':'Kundenorientierung','mv-val-4':'Innovation','mv-val-5':'Nigerianischer Stolz','mv-val-6':'Pünktlichkeit'
 },
 sw:{flag:'🇰🇪',name:'SW',
 'nav-about':'Kuhusu Sisi','nav-services':'Huduma','nav-locations':'Maeneo','nav-contact':'Wasiliana','nav-quote':'Omba Bei','nav-book':'📅 Weka Simu',
@@ -2518,18 +2366,7 @@ sw:{flag:'🇰🇪',name:'SW',
 'footer-h-services':'Huduma','footer-h-offices':'Ofisi Zetu','footer-tagline':'Kutoa huduma za upimaji, uhandisi, na programu Nigeria nzima.','footer-copy':'© 2025 Emkay Surveys Nigeria Limited. Haki zote zimehifadhiwa.',
 'mv-mission-label':'Dhamira Yetu','mv-mission-title':'Kutoa <em>Usahihi</em> kwa Kusudi','mv-mission-text':'Kutoa ufumbuzi wa upimaji wa ardhi, uhandisi, na teknolojia wa kiwango cha dunia unaowapa nguvu watu binafsi, biashara, na taasisi za serikali kote Nigeria — kwa kujitolea kikamilifu kwa usahihi, uaminifu, na utoaji wa wakati.',
 'mv-vision-label':'Maono Yetu','mv-vision-title':'Kampuni ya Upimaji inayoaminika Zaidi <em>Nigeria</em>','mv-vision-text':'Kuwa kampuni ya kwanza ya upimaji na uhandisi nchini Nigeria — inayojulikana kwa ubora wa kitaalamu, uvumbuzi wa kiteknolojia, na athari ya kudumu tunayounda katika kila jamii tunayoihudumia.',
-'mv-values-title':'<em>Maadili</em> Yetu ya Msingi','mv-val-1':'Uaminifu','mv-val-2':'Usahihi','mv-val-3':'Mteja Kwanza','mv-val-4':'Uvumbuzi','mv-val-5':'Fahari ya Nigeria','mv-val-6':'Wakati',
-'ceo-section-label':'Uongozi','ceo-section-title':'Kutana na <em>Mwanzilishi na MD/CEO Wetu</em>','ceo-tap-hint':'Gusa picha kuona mafanikio','ceo-tag':'Mwanzilishi &amp; MD/CEO',
-'ceo-bio-lbl-1':'Uongozi wa Kimataifa katika Sayansi ya Geospatial','ceo-bio-title-1':'Mwenyekiti, <em>Mtandao wa Kikanda wa Afrika wa FIG</em>',
-'ceo-bio-text-1':'Katika Emkay Surveys, kujitolea kwetu kwa usahihi kumevuviwa na viwango vya kimataifa na maono ya Surv. Amb. M.M Kabir. Kama mtu mkuu katika jamii ya geospatial ya kimataifa, kazi yake inahakikisha kwamba taaluma ya upimaji barani Afrika inabaki na ushindani, uvumbuzi, na kulingana na mazoea bora ya dunia.',
-'ceo-bio-lbl-2':'Kuendesha Ajenda ya Geospatial ya Afrika',
-'ceo-bio-text-2':'Baada ya kazi ya ajabu katika uongozi wa udhibiti, Surv. Amb. Kabir anahudumu kama <strong>Mwenyekiti wa Mtandao wa Kikanda wa Afrika wa Shirikisho la Kimataifa la Wapimaji (FIG)</strong>. Katika nafasi hii, anaongoza juhudi za kisasa cha utawala wa ardhi na viwango vya kitaalamu kote barani.',
-'ceo-bio-lbl-3':'Maono ya Ubora katika Sekta Binafsi',
-'ceo-achievements-1':'<li><strong>Mabadiliko ya Kidijitali:</strong> Kutetea mpito wa upimaji unaotegemea TEHAMA na matumizi ya GIS.</li><li><strong>Ujenzi wa Uwezo:</strong> Kushauri kizazi kijacho kupitia Mtandao wa Wapimaji Wachanga.</li><li><strong>Ushirikiano wa Kimataifa:</strong> Kuwakilisha maslahi ya Afrika katika majukwaa ya kimataifa ya kiwango cha juu, ikiwa ni pamoja na Umoja wa Mataifa.</li>',
-'ceo-bio-lbl-4':'Tofauti za Kitaalamu',
-'ceo-achievements-2':'<li><strong>Mwanachama wa Taasisi ya Wapimaji ya Nigeria (fnis)</strong> — Imetolewa kwa michango ya maisha na umilisi wa kiufundi.</li><li><strong>Mwanachama wa Taasisi ya Kitaifa (mni)</strong> — Mhitimu wa NIPSS, Kuru.</li><li><strong>Balozi wa Kimataifa</strong> — Ametambuliwa kama "Kiashiria cha Ujenzi wa Taifa".</li>',
-'ceo-quote-text':'"Katika Emkay Surveys, tunaonyesha uadilifu wa kitaalamu na mwelekeo wa kiufundi ambao Surv. Amb. M.M. Kabir anautetea kwenye jukwaa la kimataifa."',
-'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Funga'
+'mv-values-title':'<em>Maadili</em> Yetu ya Msingi','mv-val-1':'Uaminifu','mv-val-2':'Usahihi','mv-val-3':'Mteja Kwanza','mv-val-4':'Uvumbuzi','mv-val-5':'Fahari ya Nigeria','mv-val-6':'Wakati'
 }
 };
 
@@ -2711,7 +2548,242 @@ window.addEventListener('DOMContentLoaded', function(){
     }, 800);
   }
 });
+
+// ── CURSOR GLOW ──────────────────────────────────────────────────────
+(function(){
+  var glow = document.createElement('div');
+  glow.id = 'cursor-glow';
+  document.body.appendChild(glow);
+  var mx = window.innerWidth/2, my = window.innerHeight/2;
+  var cx = mx, cy = my;
+  document.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; });
+  function animGlow(){
+    cx += (mx - cx) * 0.08;
+    cy += (my - cy) * 0.08;
+    glow.style.transform = 'translate(' + (cx - 200) + 'px,' + (cy - 200) + 'px)';
+    requestAnimationFrame(animGlow);
+  }
+  animGlow();
+  // hide on mobile
+  if ('ontouchstart' in window) glow.style.display = 'none';
+})();
+
+// ── STAT COUNTERS ────────────────────────────────────────────────────
+(function(){
+  var stats = [
+    { selector: null, target: 5, suffix: '+', label: 'Office Locations' },
+    { selector: null, target: 5, suffix: '',  label: 'Core Disciplines' },
+    { selector: null, target: 100, suffix: '%', label: 'Nigerian-Owned' },
+    { selector: null, target: 24, suffix: '/7', label: 'Client Support' }
+  ];
+
+  var statEls = document.querySelectorAll('.stat-num');
+  statEls.forEach(function(el, i) {
+    if (!stats[i]) return;
+    stats[i].el = el;
+    stats[i].original = el.textContent;
+    el.textContent = '0' + stats[i].suffix;
+  });
+
+  function countUp(stat) {
+    var start = 0;
+    var duration = 1600;
+    var startTime = null;
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var ease = 1 - Math.pow(1 - progress, 3);
+      var val = Math.round(ease * stat.target);
+      stat.el.textContent = val + stat.suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  var statsObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        stats.forEach(function(s) { if (s.el) countUp(s); });
+        statsObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  var statsSection = document.querySelector('.hero-stats');
+  if (statsSection) statsObserver.observe(statsSection);
+})();
+
+// ── TYPEWRITER EFFECT ON HERO TITLE ─────────────────────────────────
+(function(){
+  // Wait for splash to finish (2.6s + 0.9s = ~3.5s), then type
+  var titleEl = document.getElementById('hero-title');
+  if (!titleEl) return;
+
+  var lines = [
+    { text: 'Precision Surveys.', em: false },
+    { text: 'Engineering Excellence.', em: true }
+  ];
+
+  titleEl.innerHTML = '';
+  titleEl.style.opacity = '1';
+  titleEl.style.transform = 'none';
+
+  function typeLine(lineIndex, charIndex, resolve) {
+    var line = lines[lineIndex];
+    if (!line) { resolve && resolve(); return; }
+
+    // Build current display
+    var html = '';
+    for (var i = 0; i < lineIndex; i++) {
+      html += lines[i].em
+        ? '<em>' + lines[i].text + '</em>'
+        : lines[i].text;
+      html += '<br>';
+    }
+    // current line being typed
+    var partial = line.text.slice(0, charIndex + 1);
+    html += line.em ? '<em>' + partial + '</em>' : partial;
+    html += '<span class="tw-cursor">|</span>';
+    titleEl.innerHTML = html;
+
+    if (charIndex < line.text.length - 1) {
+      setTimeout(function(){ typeLine(lineIndex, charIndex + 1, resolve); }, 48);
+    } else {
+      // line done — pause then next line
+      setTimeout(function(){
+        typeLine(lineIndex + 1, 0, resolve);
+      }, lineIndex === lines.length - 1 ? 0 : 300);
+    }
+  }
+
+  setTimeout(function(){
+    typeLine(0, 0, function(){
+      // remove cursor blink after done
+      setTimeout(function(){
+        var cur = titleEl.querySelector('.tw-cursor');
+        if (cur) cur.style.animation = 'none', cur.style.opacity = '0';
+      }, 2000);
+    });
+  }, 3200);
+})();
+
+// ── SCROLL-TRIGGERED REVEAL ANIMATIONS ──────────────────────────────
+(function(){
+  // Elements to reveal
+  var selectors = [
+    '.service-card',
+    '.mv-card',
+    '.project-card',
+    '.about-card',
+    '.branch-card',
+    '.contact-item',
+    '.mv-pillar',
+    '.info-row',
+    '.footer-col',
+    '.section-label',
+    '.section-title',
+    '.divider'
+  ];
+
+  var allEls = document.querySelectorAll(selectors.join(','));
+
+  allEls.forEach(function(el, i) {
+    el.classList.add('sr-hidden');
+    // Stagger siblings within the same parent
+    var siblings = el.parentElement ? el.parentElement.querySelectorAll(el.tagName + '.sr-hidden') : [];
+    var sibIndex = Array.prototype.indexOf.call(siblings, el);
+    el.style.transitionDelay = (sibIndex * 0.08) + 's';
+  });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('sr-visible');
+        observer.unobserve(entry.target); // animate once
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  allEls.forEach(function(el) { observer.observe(el); });
+})();
 </script>
+
+<style>
+/* ── CURSOR GLOW ── */
+#cursor-glow {
+  position: fixed;
+  top: 0; left: 0;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(45,140,66,0.13) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 9998;
+  transition: opacity .3s;
+  will-change: transform;
+}
+
+/* ── TYPEWRITER CURSOR ── */
+.tw-cursor {
+  display: inline-block;
+  color: var(--gold);
+  font-weight: 300;
+  animation: twBlink .7s step-end infinite;
+  margin-left: 2px;
+}
+@keyframes twBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── SCROLL REVEAL BASE STATES ── */
+.sr-hidden {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.sr-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Cards get a slight scale-up too */
+.service-card.sr-hidden,
+.mv-card.sr-hidden,
+.project-card.sr-hidden,
+.about-card.sr-hidden,
+.branch-card.sr-hidden {
+  transform: translateY(36px) scale(0.97);
+}
+.service-card.sr-visible,
+.mv-card.sr-visible,
+.project-card.sr-visible,
+.about-card.sr-visible,
+.branch-card.sr-visible {
+  transform: translateY(0) scale(1) !important;
+}
+
+/* Labels slide in from left */
+.section-label.sr-hidden,
+.divider.sr-hidden {
+  transform: translateX(-18px);
+  opacity: 0;
+}
+.section-label.sr-visible,
+.divider.sr-visible {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+/* Pillars pop in */
+.mv-pillar.sr-hidden {
+  transform: scale(0.88);
+  opacity: 0;
+}
+.mv-pillar.sr-visible {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+</style>
 <!-- LIGHTBOX -->
 <div id="proj-lightbox">
   <button id="proj-lightbox-close" onclick="closeLightbox()">✕</button>
