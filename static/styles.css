@@ -345,6 +345,7 @@
 
     /* Read More / Read Less */
     .ceo-bio-more{max-height:0;overflow:hidden;transition:max-height .55s cubic-bezier(.22,1,.36,1);}
+    .ceo-bio-more.expanded{overflow:visible;}
     .ceo-bio-more.expanded{max-height:3000px;}
     .ceo-read-more-btn{
       display:flex;align-items:center;justify-content:center;gap:8px;
@@ -594,8 +595,12 @@
   .lang-option.active{color:var(--gold);font-weight:600;}
 
   /* === CEO SIGNATURE ANIMATION === */
-  .ceo-sig-wrap { margin: 18px 0 0 0; padding-bottom: 0; }
+  .ceo-sig-wrap { margin: 18px 0 0 0; padding-bottom: 10px; overflow: visible; }
   .ceo-sig-svg { width: 200px; height: auto; overflow: visible; display: block; margin-bottom: -18px; max-width: 100%; opacity: 0.85; filter: drop-shadow(0 4px 12px rgba(45,140,66,.18)); }
+  @media(max-width:900px){
+    .ceo-sig-wrap { padding-bottom: 18px; }
+    .ceo-sig-svg { width: 100%; max-width: 200px; margin-bottom: 0; }
+  }
   .ceo-sig-svg path {
     fill: none; stroke: var(--gold); stroke-width: 2.2;
     stroke-linecap: round; stroke-linejoin: round;
