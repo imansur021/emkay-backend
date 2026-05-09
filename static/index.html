@@ -7,7 +7,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/styles.css">
 <style>
-/* ── MAP SECTION ── */
+/* ── STATS COUNTER ── */
+#stats-section{background:var(--navy-mid);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:72px 5vw;}
+.stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+.stat-item{display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 24px;position:relative;}
+.stat-item::after{content:'';position:absolute;right:0;top:20%;height:60%;width:1px;background:var(--border);}
+.stat-item:last-child::after{display:none;}
+.stat-number{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,4vw,3.6rem);font-weight:700;color:var(--gold);line-height:1;letter-spacing:-.01em;}
+.stat-suffix{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,2.5vw,2.4rem);font-weight:700;color:var(--gold);margin-left:2px;}
+.stat-label{margin-top:12px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);line-height:1.5;}
+.stat-divider{width:24px;height:2px;background:var(--gold);margin:10px auto 0;opacity:.4;border-radius:2px;}
+body.light #stats-section{background:#f0f8f2;}
+@media(max-width:700px){
+  .stats-inner{grid-template-columns:repeat(2,1fr);}
+  .stat-item:nth-child(2)::after{display:none;}
+  .stat-item{padding:32px 16px;}
+}
+@media(max-width:380px){
+  .stats-inner{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body class="light">
@@ -242,6 +260,33 @@
 
         <button class="ceo-close-btn" id="ceo-close-btn" onclick="toggleCeoBio()">✕ Close</button>
       </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- STATS COUNTER -->
+<section id="stats-section">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div><span class="stat-number" data-target="33">0</span><span class="stat-suffix">+</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-label">Years of<br>Experience</div>
+    </div>
+    <div class="stat-item">
+      <div><span class="stat-number" data-target="28">0</span><span class="stat-suffix"></span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-label">Years at Top<br>Management</div>
+    </div>
+    <div class="stat-item">
+      <div><span class="stat-number" data-target="2000">0</span><span class="stat-suffix">+</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-label">Surveyors<br>Registered</div>
+    </div>
+    <div class="stat-item">
+      <div><span class="stat-number" data-target="25">0</span><span class="stat-suffix">+</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-label">Published<br>Papers</div>
     </div>
   </div>
 </section>
@@ -612,6 +657,38 @@
   <div id="proj-lightbox-counter"></div>
 </div>
 
+<!-- STATS COUNTER ANIMATION -->
+<script>
+(function(){
+  function animateCounter(el) {
+    var target = parseInt(el.getAttribute('data-target'), 10);
+    var duration = 1800;
+    var start = null;
+    function ease(t){ return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+    function step(timestamp) {
+      if (!start) start = timestamp;
+      var progress = Math.min((timestamp - start) / duration, 1);
+      var current = Math.floor(ease(progress) * target);
+      el.textContent = current >= 1000 ? (current).toLocaleString() : current;
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = target >= 1000 ? target.toLocaleString() : target;
+    }
+    requestAnimationFrame(step);
+  }
+
+  var counters = document.querySelectorAll('.stat-number');
+  var triggered = false;
+  new IntersectionObserver(function(entries, obs) {
+    if (entries[0].isIntersecting && !triggered) {
+      triggered = true;
+      counters.forEach(function(el, i) {
+        setTimeout(function(){ animateCounter(el); }, i * 150);
+      });
+      obs.disconnect();
+    }
+  }, { threshold: 0.3 }).observe(document.getElementById('stats-section'));
+})();
+</script>
 
 </body>
 </html>
