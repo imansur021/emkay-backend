@@ -310,10 +310,10 @@
   .ceo-name-plate .ceo-tag{display:inline-block;margin-top:10px;padding:4px 12px;background:rgba(45,140,66,.12);border:1px solid var(--border);border-radius:2px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);}
 
  .ceo-bio-col{
-  opacity:1;
-  transform:translateX(0);
+  opacity:0;
+  transform:translateX(40px);
   transition:opacity .5s ease,transform .5s ease;
-  pointer-events:auto;
+  pointer-events:none;
 }
   .ceo-bio-col.active{opacity:1;transform:translateX(0);pointer-events:auto;}
   .ceo-bio-section{margin-bottom:32px;}
