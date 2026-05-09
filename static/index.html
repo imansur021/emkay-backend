@@ -24,8 +24,9 @@
 .map-directions-btn:hover{background:var(--gold-light);transform:translateY(-2px);}
 .map-frame-col{position:relative;}
 .map-frame-wrap{position:relative;border-radius:8px 8px 0 0;overflow:hidden;border:1px solid var(--border);border-bottom:none;box-shadow:0 24px 64px rgba(0,0,0,.35),0 0 40px rgba(45,140,66,.07);}
-.map-frame-wrap iframe,.map-frame-wrap #leaflet-map{display:block;width:100%;height:440px;border:none;filter:brightness(0.88) contrast(1.05) saturate(0.9);transition:filter .3s;}
-.map-frame-wrap:hover iframe,.map-frame-wrap:hover #leaflet-map{filter:brightness(0.96) contrast(1.05) saturate(1);}
+.map-frame-wrap iframe,.map-frame-wrap #leaflet-map{display:block;width:100%;height:440px;border:none;}
+.map-frame-wrap{filter:brightness(0.88) contrast(1.05) saturate(0.9);transition:filter .3s;}
+.map-frame-wrap:hover{filter:brightness(0.96) contrast(1.05) saturate(1);}
 .map-address-strip{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--navy);border:1px solid var(--border);border-radius:0 0 8px 8px;flex-wrap:wrap;}
 .map-address-strip .strip-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite;flex-shrink:0;}
 .map-address-strip .strip-name{font-size:12.5px;font-weight:600;color:var(--white);}
@@ -732,25 +733,13 @@ body.light .map-tile{background:#fff;}
     .bindPopup('<strong>Emkay Surveys</strong><br>201T Novare Central Mall<br>Wuse Zone 5, Abuja')
     .openPopup();
 
-  // The map container starts sr-hidden (invisible). Leaflet can't measure it
-  // until it's visible. Watch for sr-visible being added, then recalculate.
-  var container = document.getElementById('leaflet-map');
-  var sizeFixed = false;
-  var mo = new MutationObserver(function() {
-    if (!sizeFixed && container.closest('.sr-visible, :not(.sr-hidden)')) {
-      sizeFixed = true;
-      setTimeout(function(){ map.invalidateSize(); }, 50);
-      mo.disconnect();
+  // Call invalidateSize as soon as the map div enters the viewport
+  new IntersectionObserver(function(entries, obs) {
+    if (entries[0].isIntersecting) {
+      map.invalidateSize();
+      obs.disconnect();
     }
-  });
-  mo.observe(document.querySelector('.map-frame-col') || container, { attributes: true, attributeFilter: ['class'] });
-
-  // Fallback: also fire on scroll/resize in case MutationObserver misses it
-  var fallback = function() {
-    if (!sizeFixed) { sizeFixed = true; map.invalidateSize(); }
-    window.removeEventListener('scroll', fallback);
-  };
-  window.addEventListener('scroll', fallback, { passive: true });
+  }, { threshold: 0.1 }).observe(document.getElementById('leaflet-map'));
 })();
 </script>
 </body>
