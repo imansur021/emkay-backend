@@ -284,7 +284,7 @@ overflow:hidden;transition:max-height .4s ease,opacity .4s ease,padding .4s ease
   .ceo-achievements li::before{content:'▸';color:var(--gold);font-size:12px;margin-top:3px;flex-shrink:0;}
   .ceo-achievements li strong{color:var(--white);}
   .ceo-quote{margin-top:28px;padding:24px 28px 24px 28px;background:rgba(45,140,66,.07);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;overflow:visible;}
-  .ceo-quote p{font-family:'Playfair Display',serif;font-size:.96rem;font-style:italic;color:var(--white);line-height:1.8;}
+  .ceo-quote p{font-family:'Playfair Display',serif;font-size:1.15rem;font-style:italic;color:var(--white);line-height:1.8;}
   .ceo-quote cite{display:block;margin-top:12px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-style:normal;opacity:.9;}
   .ceo-close-btn{display:none;margin-top:24px;padding:10px 22px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:border-color .2s,color .2s;}
   .ceo-close-btn:hover{border-color:var(--gold);color:var(--gold);}
