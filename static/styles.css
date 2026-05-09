@@ -102,6 +102,14 @@
   .hero-logo-wrap{margin-bottom:32px;animation:fadeDown .6s ease both;}
   .hero-logo{width:150px;height:150px;object-fit:contain;border-radius:12px;border:2px solid rgba(45,140,66,.35);background:#fff;padding:8px;box-shadow:0 0 50px rgba(45,140,66,.25),0 12px 40px rgba(0,0,0,.4);transition:transform .3s,box-shadow .3s;}
   .hero-logo:hover{transform:scale(1.04);box-shadow:0 0 70px rgba(45,140,66,.4),0 16px 48px rgba(0,0,0,.4);}
+  @keyframes heartbeat{
+    0%,100%{transform:scale(1);}
+    14%{transform:scale(1.08);}
+    28%{transform:scale(1);}
+    42%{transform:scale(1.05);}
+    56%{transform:scale(1);}
+  }
+  .hero-logo{animation:heartbeat 2.4s ease-in-out infinite;}
   .hero-badge{display:inline-flex;align-items:center;gap:10px;padding:7px 18px;border:1px solid var(--border);border-radius:2px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:32px;background:rgba(45,140,66,.07);animation:fadeDown .8s ease both;}
   .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite;}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
