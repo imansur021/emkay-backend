@@ -24,48 +24,76 @@
   body.light .theme-toggle{background:#b8d4bf;}
   body.light .theme-toggle::after{transform:translateX(20px);}
 
-  /* ── SPLASH ── */
   #splash{
     position:fixed;inset:0;z-index:9999;
-    background:linear-gradient(135deg,#0b1a2e 0%,#0d2b1a 50%,#0b1a2e 100%);
+    background:radial-gradient(ellipse 80% 70% at 50% 40%,#0d2b1a 0%,#0b1a2e 55%,#060f1c 100%);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    animation: splashHide 0.9s 2.6s ease forwards;
-    pointer-events:none;
+    animation: splashHide 1.2s 3.4s cubic-bezier(.77,0,.18,1) forwards;
+    pointer-events:none;overflow:hidden;
   }
+  #splash::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(45,140,66,.13) 0%,transparent 70%);
+    animation:splashGlow 2.5s ease-in-out infinite alternate;
+  }
+  @keyframes splashGlow{from{opacity:.5}to{opacity:1}}
   @keyframes splashHide {
     0%   { opacity:1; visibility:visible; }
     100% { opacity:0; visibility:hidden; pointer-events:none; }
   }
+  .splash-logo-ring{
+    position:relative;width:176px;height:176px;
+    display:flex;align-items:center;justify-content:center;
+    animation:splashPop .9s cubic-bezier(.175,.885,.32,1.275) both;
+  }
+  .splash-logo-ring::before{
+    content:'';position:absolute;inset:-4px;border-radius:18px;
+    background:conic-gradient(from 0deg,transparent 0%,var(--gold) 30%,#3daa55 50%,transparent 70%);
+    animation:splashRingSpin 2s linear infinite;opacity:.8;
+  }
+  .splash-logo-ring::after{
+    content:'';position:absolute;inset:-2px;border-radius:16px;
+    background:#0b1a2e;
+  }
+  @keyframes splashRingSpin{to{transform:rotate(360deg)}}
   .splash-logo{
     width:160px;height:160px;object-fit:contain;
-    border-radius:12px;border:3px solid rgba(45,140,66,.4);
+    border-radius:12px;border:none;
     background:#fff;padding:8px;
-    animation:splashPop .7s cubic-bezier(.175,.885,.32,1.275) both;
-    box-shadow:0 0 80px rgba(45,140,66,.4);
+    box-shadow:0 0 60px rgba(45,140,66,.5),0 0 120px rgba(45,140,66,.2);
+    position:relative;z-index:1;
+    animation:splashShimmer 2s 0.9s ease forwards;
+  }
+  @keyframes splashShimmer{
+    0%{box-shadow:0 0 60px rgba(45,140,66,.5),0 0 120px rgba(45,140,66,.2);}
+    50%{box-shadow:0 0 90px rgba(45,140,66,.8),0 0 160px rgba(45,140,66,.35);}
+    100%{box-shadow:0 0 60px rgba(45,140,66,.5),0 0 120px rgba(45,140,66,.2);}
   }
   .splash-title{
     font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,3rem);
-    font-weight:900;color:#fff;text-align:center;margin-top:28px;
-    animation:splashFadeUp .8s .3s ease both;line-height:1.2;
+    font-weight:900;color:#fff;text-align:center;margin-top:32px;
+    animation:splashFadeUp 1s .5s cubic-bezier(.22,1,.36,1) both;line-height:1.2;
+    letter-spacing:.01em;
   }
   .splash-title em{color:#3daa55;font-style:italic;}
   .splash-sub{
-    font-family:'Barlow',sans-serif;font-size:14px;letter-spacing:.2em;
-    text-transform:uppercase;color:rgba(45,140,66,.8);margin-top:12px;
-    animation:splashFadeUp .8s .5s ease both;
+    font-family:'Barlow',sans-serif;font-size:11px;letter-spacing:.28em;
+    text-transform:uppercase;color:rgba(45,140,66,.9);margin-top:14px;
+    animation:splashFadeUp 1s .75s cubic-bezier(.22,1,.36,1) both;
   }
   .splash-bar{
-    width:200px;height:3px;background:rgba(255,255,255,.1);
-    border-radius:3px;margin-top:36px;overflow:hidden;
-    animation:splashFadeUp .8s .6s ease both;
+    width:180px;height:2px;background:rgba(255,255,255,.08);
+    border-radius:2px;margin-top:40px;overflow:hidden;
+    animation:splashFadeUp 1s .9s cubic-bezier(.22,1,.36,1) both;
   }
   .splash-bar-fill{
-    height:100%;background:linear-gradient(90deg,#2d8c42,#3daa55);
-    animation:splashLoad 2s .7s ease-out forwards;width:0;
+    height:100%;background:linear-gradient(90deg,transparent,var(--gold),#3daa55,var(--gold),transparent);
+    background-size:200% 100%;
+    animation:splashSweep 2.2s .9s ease-out forwards;width:0;
   }
-  @keyframes splashPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
-  @keyframes splashFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes splashLoad{to{width:100%}}
+  @keyframes splashPop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+  @keyframes splashFadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes splashSweep{0%{width:0;background-position:100% 0}100%{width:100%;background-position:0 0}}
 
   /* ── THEME TOGGLE ── */
   .theme-toggle{width:44px;height:24px;background:var(--navy-light);border:1px solid var(--border);border-radius:20px;position:relative;cursor:pointer;transition:background .3s;flex-shrink:0;padding:0;outline:none;}
@@ -100,8 +128,9 @@
   .hero-grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(45,140,66,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(45,140,66,.04) 1px,transparent 1px);background-size:60px 60px;}
   .hero-content{position:relative;z-index:2;max-width:900px;text-align:center;}
   .hero-logo-wrap{margin-bottom:32px;animation:fadeDown .6s ease both;}
-  .hero-logo{width:150px;height:150px;object-fit:contain;border-radius:12px;border:2px solid rgba(45,140,66,.35);background:#fff;padding:8px;box-shadow:0 0 50px rgba(45,140,66,.25),0 12px 40px rgba(0,0,0,.4);transition:transform .3s,box-shadow .3s;}
-  .hero-logo:hover{transform:scale(1.04);box-shadow:0 0 70px rgba(45,140,66,.4),0 16px 48px rgba(0,0,0,.4);}
+  .hero-logo{width:150px;height:150px;object-fit:contain;border-radius:12px;border:2px solid rgba(45,140,66,.35);background:#fff;padding:8px;box-shadow:0 0 50px rgba(45,140,66,.25),0 12px 40px rgba(0,0,0,.4);transition:box-shadow .3s;animation:heartbeat 2.4s ease-in-out infinite;}
+  .hero-logo:hover{box-shadow:0 0 70px rgba(45,140,66,.4),0 16px 48px rgba(0,0,0,.4);}
+  @keyframes heartbeat{0%,100%{transform:scale(1);}14%{transform:scale(1.08);}28%{transform:scale(1);}42%{transform:scale(1.05);}56%{transform:scale(1);}}
   .hero-badge{display:inline-flex;align-items:center;gap:10px;padding:7px 18px;border:1px solid var(--border);border-radius:2px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:32px;background:rgba(45,140,66,.07);animation:fadeDown .8s ease both;}
   .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite;}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}

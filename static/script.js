@@ -843,10 +843,10 @@ en:{flag:'🇬🇧',name:'EN',
 'ceo-bio-text-1':'At Emkay Surveys, our commitment to precision is inspired by the global standards and vision of Surv. Amb. M.M Kabir. As a leading figure in the international geospatial community, his work ensures that the surveying profession in Africa remains competitive, innovative, and aligned with world-class practices.',
 'ceo-bio-lbl-2':'Driving the African Geospatial Agenda',
 'ceo-bio-text-2':'Following a distinguished career in regulatory leadership, Surv. Amb. Kabir serves as <strong>Chairperson of the International Federation of Surveyors (FIG) Africa Regional Network</strong>. In this capacity, he leads efforts to modernise land governance and professional standards across the continent, bridging the gap between local expertise and global innovation.',
-'ceo-bio-lbl-3':'A Vision for Private Sector Excellence',
-'ceo-achievements-1':'<li><strong>Digital Transformation:</strong> Championing the shift to ICT-driven surveying and GIS applications to support smart-city initiatives.</li><li><strong>Capacity Building:</strong> Mentoring the next generation through the Young Surveyors Network and promoting gender inclusivity within the field.</li><li><strong>International Collaboration:</strong> Representing African interests at high-level global forums, including the United Nations Global Geospatial Knowledge and Innovation Centre.</li>',
-'ceo-bio-lbl-4':'Professional Distinctions',
-'ceo-achievements-2':'<li><strong>Fellow of the Nigerian Institution of Surveyors (fnis)</strong> — Awarded for lifelong contributions and technical mastery.</li><li><strong>Member of the National Institute (mni)</strong> — A graduate of NIPSS, Kuru, bringing high-level strategic policy expertise to the private sector.</li><li><strong>Global Ambassador</strong> — Recognised as an "Icon of Nation Building" and a key partner in implementing the African Union\'s agenda on land.</li>',
+'ceo-bio-lbl-3':'Leadership Roles &amp; UN / Global Engagements',
+'ceo-achievements-1':'<li><strong>Registrar / CEO, Surveyors Council of Nigeria (SURCON)</strong> — The national body for the registration, regulation and control of the survey profession in Nigeria.</li><li><strong>State Surveyor-General, Katsina State</strong> — Administered a jurisdiction of 24,000 km² with a population of 10 million people.</li><li><strong>Chairman, Forum of all States Surveyors General in Nigeria (FOSSGON)</strong> — Coordinating survey policy across all 36 states.</li><li><strong>Member, Presidential Technical Committee on Land Reform (Land Use Act)</strong> — Contributing expertise to Nigeria\'s national land policy at the highest level.</li><li><strong>Member, FIG Strategy Group</strong> — Representing Africa and large associations globally within the International Federation of Surveyors.</li><li><strong>Nigerian Delegate, UNGGIM-Africa</strong> — Actively representing Nigeria\'s interests in the UN Committee of Experts on Global Geospatial Information Management for Africa.</li><li><strong>Panel of Experts — UNGGIM-Africa Action Plan</strong> — Representing West Africa in the review of the continental geospatial action plan.</li><li><strong>Panelist, 1st UN World Geospatial Information Congress</strong> — China, 2018; one of the foremost global gatherings on geospatial knowledge.</li><li><strong>Nigerian Delegate, UN 4th High Level Forum on Good Land Governance</strong> — Advancing responsible land administration at international level.</li><li><strong>Panelist, World Bank Global Land Tools Network Conference</strong> — Washington DC; shaping global frameworks for land tenure and tools.</li><li><strong>Regular Contributor, UNGGIM-Europe</strong> — Bridging African perspectives into European geospatial governance discussions.</li>',
+'ceo-bio-lbl-4':'Awards, Distinctions &amp; Key Numbers',
+'ceo-achievements-2':'<li><strong>DFID GEMS 3 Award for Promoting SLTR in Katsina State</strong> — Recognised by the UK Department for International Development for excellence in Systematic Land Title Registration.</li><li><strong>Women-in-Surveying Angel of the Year (2016 – present)</strong> — Sustained recognition for championing gender inclusion and equal opportunity in the surveying profession.</li><li><strong>National Good Governance Award 2020</strong> — Conferred by a coalition of 86 Civil Society Organisations in recognition of exemplary public service.</li><li><strong>Pan-African Leadership Prize for Excellence (ASUP 2020)</strong> — Honouring continental impact and leadership in the geospatial sector.</li><li><strong>Thomas Sakara Leadership Prize for Integrity and Transparency (YOUPAD)</strong> — Awarded by youth-led professionals for ethical leadership.</li><li><strong>Fellow of the Nigerian Institution of Surveyors (fnis)</strong> — Awarded for lifelong contributions and technical mastery.</li><li><strong>Member of the National Institute (mni)</strong> — A graduate of NIPSS, Kuru, bringing high-level strategic policy expertise to the private sector.</li><li><strong>Global Ambassador</strong> — Recognised as an "Icon of Nation Building" and a key partner in implementing the African Union\'s agenda on land.</li><li>📊 <strong>33 years</strong> of professional experience, with <strong>28 years at top management level</strong>.</li><li>📄 <strong>25+ published</strong> local and international professional papers in surveying and geospatial science.</li><li>🤝 <strong>Registered 2,000+ members</strong> into the Young Surveyors Network, growing the next generation of professionals.</li><li>🌍 <strong>Arranged the FIG President\'s State Visit to Nigeria</strong> — meetings with the President of the Federal Republic and the President of the Senate.</li>',
 'ceo-quote-text':'"At Emkay Surveys, we embody the professional integrity and technical foresight championed by Surv. Amb. M.M. Kabir on the global stage."',
 'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Close'
 },
@@ -891,10 +891,10 @@ fr:{flag:'🇫🇷',name:'FR',
 'ceo-bio-text-1':'Chez Emkay Surveys, notre engagement envers la précision est inspiré par les normes mondiales et la vision de Surv. Amb. M.M Kabir. En tant que figure de proue de la communauté géospatiale internationale, son travail garantit que la profession de géomètre en Afrique reste compétitive, innovante et alignée sur les meilleures pratiques mondiales.',
 'ceo-bio-lbl-2':'Piloter l\'Agenda Géospatial Africain',
 'ceo-bio-text-2':'Après une carrière distinguée dans le leadership réglementaire, Surv. Amb. Kabir est <strong>Président du Réseau Régional Africain de la Fédération Internationale des Géomètres (FIG)</strong>. Dans ce rôle, il dirige les efforts pour moderniser la gouvernance foncière et les normes professionnelles sur le continent.',
-'ceo-bio-lbl-3':'Une Vision pour l\'Excellence du Secteur Privé',
-'ceo-achievements-1':'<li><strong>Transformation Numérique :</strong> Championner le passage à des relevés basés sur les TIC et les applications SIG.</li><li><strong>Renforcement des Capacités :</strong> Encadrer la prochaine génération via le Réseau des Jeunes Géomètres.</li><li><strong>Collaboration Internationale :</strong> Représenter les intérêts africains dans les forums mondiaux de haut niveau, y compris l\'ONU.</li>',
-'ceo-bio-lbl-4':'Distinctions Professionnelles',
-'ceo-achievements-2':'<li><strong>Membre de l\'Institution Nigériane des Géomètres (fnis)</strong> — Récompensé pour ses contributions permanentes et sa maîtrise technique.</li><li><strong>Membre de l\'Institut National (mni)</strong> — Diplômé du NIPSS, Kuru, apportant une expertise en politique stratégique.</li><li><strong>Ambassadeur Mondial</strong> — Reconnu comme une « Icône de la Construction Nationale ».</li>',
+'ceo-bio-lbl-3':'Rôles de Leadership &amp; Engagements à l\'ONU / Mondiaux',
+'ceo-achievements-1':'<li><strong>Registraire / PDG, Conseil des Géomètres du Nigeria (SURCON)</strong> — L\'organe national de enregistrement, réglementation et contrôle de la profession de géomètre.</li><li><strong>Géomètre en Chef de l\'État de Katsina</strong> — Administration d\'une juridiction de 24 000 km² avec 10 millions d\'habitants.</li><li><strong>Président, Forum de tous les Géomètres Généraux des États du Nigeria (FOSSGON)</strong>.</li><li><strong>Membre, Comité Technique Présidentiel sur la Réforme Foncière (Loi sur l\'Usage des Terres)</strong>.</li><li><strong>Membre, Groupe Stratégique de la FIG</strong> — Représentant l\'Afrique et les grandes associations à l\'échelle mondiale.</li><li><strong>Délégué Nigérian à l\'UNGGIM-Africa</strong>.</li><li><strong>Panel d\'Experts — Plan d\'Action UNGGIM-Africa</strong> — Représentant l\'Afrique de l\'Ouest.</li><li><strong>Panéliste, 1er Congrès Mondial de l\'Information Géospatiale de l\'ONU</strong> — Chine, 2018.</li><li><strong>Délégué Nigérian, 4e Forum de Haut Niveau de l\'ONU sur la Bonne Gouvernance Foncière</strong>.</li><li><strong>Panéliste, Conférence du Réseau Mondial d\'Outils Fonciers de la Banque Mondiale</strong> — Washington DC.</li><li><strong>Contributeur Régulier, UNGGIM-Europe</strong>.</li>',
+'ceo-bio-lbl-4':'Prix, Distinctions &amp; Chiffres Clés',
+'ceo-achievements-2':'<li><strong>Prix DFID GEMS 3 pour la Promotion du SLTR dans l\'État de Katsina</strong>.</li><li><strong>Ange de l\'Année — Femmes dans l\'Arpentage (2016 – présent)</strong>.</li><li><strong>Prix National de Bonne Gouvernance 2020</strong> — Décerné par une coalition de 86 organisations.</li><li><strong>Prix Panafricain de Leadership pour l\'Excellence (ASUP 2020)</strong>.</li><li><strong>Prix Thomas Sakara pour l\'Intégrité et la Transparence (YOUPAD)</strong>.</li><li><strong>Membre de l\'Institution Nigériane des Géomètres (fnis)</strong> — Pour contributions permanentes et maîtrise technique.</li><li><strong>Membre de l\'Institut National (mni)</strong> — Diplômé du NIPSS, Kuru.</li><li><strong>Ambassadeur Mondial</strong> — Reconnu comme « Icône de la Construction Nationale ».</li><li>📊 <strong>33 ans</strong> d\'expérience professionnelle, dont <strong>28 ans au niveau de la direction</strong>.</li><li>📄 <strong>Plus de 25 articles</strong> professionnels publiés localement et internationalement.</li><li>🤝 <strong>2 000+ membres enregistrés</strong> dans le Réseau des Jeunes Géomètres.</li><li>🌍 <strong>Organisé la visite d\'État du Président de la FIG au Nigeria</strong> — rencontres avec le Président de la République et le Président du Sénat.</li>',
 'ceo-quote-text':'"Chez Emkay Surveys, nous incarnons l\'intégrité professionnelle et la prévoyance technique défendues par Surv. Amb. M.M. Kabir sur la scène mondiale."',
 'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Fermer'
 },
@@ -939,10 +939,10 @@ ha:{flag:'🇳🇬',name:'HA',
 'ceo-bio-text-1':'A Emkay Surveys, sadaukarwarmu ga daidaito tana wahayi daga ƙa\'idodin duniya da hangen nesa na Surv. Amb. M.M Kabir. A matsayin shugaba a cikin al\'ummar geospatial ta duniya, aikinsa yana tabbatar da cewa sana\'ar awo a Afirka ta kasance mai gasa, mai ƙirƙira, da dacewa da mafi kyawun ayyuka na duniya.',
 'ceo-bio-lbl-2':'Tafiyar da Shirin Geospatial na Afirka',
 'ceo-bio-text-2':'Bayan aiki mai girma a jagorancin ƙa\'ida, Surv. Amb. Kabir yana hidimar <strong>Shugaba na Ƙungiyar Kasa da Kasa ta Masu Awo (FIG) Cibiyar Yankin Afirka</strong>. A wannan matsayi, yana jagorantar ƙoƙarin zamanantar da mulkin ƙasa da ƙa\'idodin ƙwararru a duk nahiyar.',
-'ceo-bio-lbl-3':'Hangen Nesa na Ingancin Sashin Masu Zaman Kansu',
-'ceo-achievements-1':'<li><strong>Canjin Dijital:</strong> Tallafawa canzawa zuwa awo ta ICT da aikace-aikacen GIS.</li><li><strong>Gina Ƙarfi:</strong> Koyar da tsara mai zuwa ta Young Surveyors Network.</li><li><strong>Haɗin Kan Duniya:</strong> Wakiltar muradun Afirka a tarurrukan duniya na matakin sama.</li>',
-'ceo-bio-lbl-4':'Bambancin Ƙwararru',
-'ceo-achievements-2':'<li><strong>Memba na Cibiyar Masu Awo ta Najeriya (fnis)</strong> — An ba da kyautar saboda gudummawar rayuwa da ƙwarewa ta fasaha.</li><li><strong>Memba na Cibiyar Ƙasa (mni)</strong> — Mezun na NIPSS, Kuru.</li><li><strong>Jakadan Duniya</strong> — An gane shi a matsayin "Tsohon Ƙasarmu" na gina ƙasa.</li>',
+'ceo-bio-lbl-3':'Mukamai na Jagoranci &amp; Haɗin Kai da Duniya / Majalisar Dinkin Duniya',
+'ceo-achievements-1':'<li><strong>Registrar / Shugaba, Majalisar Masu Awo ta Najeriya (SURCON)</strong> — Ƙungiyar ƙasa ta rajista, tsarawa da sarrafa sana\'ar awo.</li><li><strong>Babban Jami\'in Awo na Jihar Katsina</strong> — Ya gudanar da yanki mai fadin km² 24,000 da yawan jama\'a miliyan 10.</li><li><strong>Shugaba, FOSSGON</strong> — Forum na Masu Awo Janar na Jihohi a Najeriya.</li><li><strong>Memba, Kwamitin Fasaha na Shugaban Ƙasa kan Dokar Ƙasa (Land Use Act)</strong>.</li><li><strong>Memba, Ƙungiyar Tsare-Tsaren FIG</strong> — Wakiltar Afirka da manyan ƙungiyoyi a duniya.</li><li><strong>Wakilin Najeriya, UNGGIM-Africa</strong>.</li><li><strong>Panel na Ƙwararru — Shirin UNGGIM-Africa</strong> — Wakiltar Afirka ta Yamma.</li><li><strong>Muhawara, Taron Duniya na 1 na Bayanan Geospatial na MDin Duniya</strong> — China, 2018.</li><li><strong>Wakilin Najeriya, Babban Taron MDin Duniya na 4 kan Kyakkyawan Mulkin Ƙasa</strong>.</li><li><strong>Muhawara, Taron Bankin Duniya kan Kayan Aikin Ƙasa</strong> — Washington DC.</li><li><strong>Mai Ba da Gudummawa Kullum, UNGGIM-Turai</strong>.</li>',
+'ceo-bio-lbl-4':'Kyaututtuka, Bambancin Ƙwararru &amp; Lambobi Masu Mahimmanci',
+'ceo-achievements-2':'<li><strong>Kyautar DFID GEMS 3 don Inganta SLTR a Jihar Katsina</strong>.</li><li><strong>Mala\'ikan Shekara — Mata a Awo (2016 – yanzu)</strong>.</li><li><strong>Kyautar Kyakkyawan Mulki ta Ƙasa 2020</strong> — Haɗin ƙungiyoyin farar hula 86.</li><li><strong>Kyautar Jagorancin Afirka (ASUP 2020)</strong>.</li><li><strong>Kyautar Thomas Sakara kan Gaskiya da Gaskiyar Hali (YOUPAD)</strong>.</li><li><strong>Memba na Cibiyar Masu Awo ta Najeriya (fnis)</strong>.</li><li><strong>Memba na Cibiyar Ƙasa (mni)</strong> — Mezun na NIPSS, Kuru.</li><li><strong>Jakadan Duniya</strong> — An gane shi a matsayin "Tsohon Ƙasarmu".</li><li>📊 <strong>Shekaru 33</strong> na ƙwarewa, tare da <strong>shekaru 28 a matakin gudanarwa</strong>.</li><li>📄 <strong>Fiye da wallafe-wallafe 25</strong> da aka buga a duniya.</li><li>🤝 <strong>Ya rajista mambobi 2,000+</strong> a Hanyar Sadarwa ta Masu Awo Matasa.</li><li>🌍 <strong>Ya shirya ziyarar Shugaban FIG a Najeriya</strong> — ya haɗu da Shugaban ƙasa da Shugaban Majalisar Dattawa.</li>',
 'ceo-quote-text':'"A Emkay Surveys, muna ɗaukar ƙwararrun mutunta da hangen nesa na fasaha wanda Surv. Amb. M.M. Kabir ya tallafa a fagen duniya."',
 'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Rufe'
 },
@@ -987,9 +987,9 @@ ig:{flag:'🇳🇬',name:'IG',
 'ceo-bio-text-1':'Na Emkay Surveys, ntụkwasị obi anyị na izi ezi bụ nke Surv. Amb. M.M Kabir na-akpali. Dị ka onye isi n\'obodo geospatial mba ụwa, ọrụ ya na-ahụ na ọrụ nyocha ala na Afrika na-anọgide na-asọmpi, na-arụpụta ihe ọhụrụ, yana ikekọ ya na omume kachasị mma n\'ụwa.',
 'ceo-bio-lbl-2':'Ịkwọ Ihe Ọ Bụ Geospatial nke Africa n\'Ihu',
 'ceo-bio-text-2':'Mgbe ọrụ pụtara ìhè na ndụmọdụ iwu gasiri, Surv. Amb. Kabir na-arụ ọrụ dị ka <strong>Onye Isi nke International Federation of Surveyors (FIG) Africa Regional Network</strong>. N\'ọnọdụ a, ọ na-akwọ mbọ iji ọgbakọ ala na ọkọlọtọ ọrụ gaa n\'ihu n\'ofe kọntinent.',
-'ceo-bio-lbl-3':'Ọhụụ maka Ịrụ Ọrụ Ọkachamara n\'Ngalaba Praịvet',
+'ceo-bio-lbl-3':'Ọrụ Ndụmọdụ & Mmekọrịta Mba Ụwa / UN',
 'ceo-achievements-1':'<li><strong>Mgbanwe Dijitalụ:</strong> Na-akwado ntụgharị na nyocha ICT na ngwa GIS.</li><li><strong>Ịrụ Ike:</strong> Na-akụzi ọgbọ na-abịa site n\'Netwọk Ndị Nyocha Ala Ndị Ntorobịa.</li><li><strong>Mmekọrịta Mba Ụwa:</strong> Na-anọchite anya mmasị Africa n\'ọnụ ụlọ forum ndị isi nke mba ụwa.</li>',
-'ceo-bio-lbl-4':'Ihe Mgosi Ọrụ Ọkachamara',
+'ceo-bio-lbl-4':'Nsọpụrụ, Ọrụ Pụtara Ìhè &amp; Ọnụọgụ Ndị Dị Mkpa',
 'ceo-achievements-2':'<li><strong>Onye Otu nke Nigerian Institution of Surveyors (fnis)</strong> — Enyere ya nnyocha maka onyinye ndụ na ụzụ.</li><li><strong>Onye Otu nke National Institute (mni)</strong> — Ọ gụsịrị akwụkwọ na NIPSS, Kuru.</li><li><strong>Ọchịchọ Mba Ụwa</strong> — A mara ya dị ka "Ihe Atụ nke Ịwulite Mba".</li>',
 'ceo-quote-text':'"Na Emkay Surveys, anyị na-anọchite anya ịdị mma ọrụ na nhụsianya teknụzụ nke Surv. Amb. M.M. Kabir na-akwado n\'ọdụ mba ụwa."',
 'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Mechie'
@@ -1035,9 +1035,9 @@ yo:{flag:'🇳🇬',name:'YO',
 'ceo-bio-text-1':'Ni Emkay Surveys, ifaramo wa si deede jẹ atilẹyin nipasẹ awọn ipele agbaye ati iran Surv. Amb. M.M Kabir. Gẹgẹ bi ẹni pataki ninu agbegbe geospatial kariaye, iṣẹ rẹ rii daju pe iṣẹ iwadii ni Afirika wa ni idije, ọgbọn, ati ibaramu pẹlu awọn iṣe aṣeyọri kariaye.',
 'ceo-bio-lbl-2':'Ṣiṣe Iwọn Eto Geospatial Afirika',
 'ceo-bio-text-2':'Lẹhin iṣẹ olokiki ni idari ilana, Surv. Amb. Kabir n\'ṣiṣẹ gẹgẹ bi <strong>Alaga ti International Federation of Surveyors (FIG) Africa Regional Network</strong>. Ni agbara yii, ó n\'darí awọn igbiyanju lati ṣe atunṣe ijọba ilẹ ati awọn ipele ọjọgbọn kọja ilẹ-aye.',
-'ceo-bio-lbl-3':'Ìran fún Iṣẹ Giga ni Eka Ikọkọ',
+'ceo-bio-lbl-3':'Awọn Ipa Idari & Ipade Kariaye / UN',
 'ceo-achievements-1':'<li><strong>Iyipada Oni-nọmba:</strong> Ṣiṣe aṣáájú iyipada si iwadii ti ICT ṣe ati awọn ohun elo GIS.</li><li><strong>Kiko Agbara:</strong> Ṣiṣe abojuto iran ti n\'bọ nipasẹ Nẹtiwọọki Awọn Aṣàwákiri Ọdọ.</li><li><strong>Ifowosowopo Kariaye:</strong> Aṣojú anfaani Afirika ni awọn ipade kariaye ipele giga.</li>',
-'ceo-bio-lbl-4':'Awọn Iyatọ Ọjọgbọn',
+'ceo-bio-lbl-4':'Awọn Ẹbun, Iyatọ &amp; Awọn Nọmba Pataki',
 'ceo-achievements-2':'<li><strong>Ẹlẹgbẹ ti Nigerian Institution of Surveyors (fnis)</strong> — Funni fun awọn ifunni igbesi aye ati ṣiṣe imọ-ẹrọ.</li><li><strong>Ọmọ ẹgbẹ ti National Institute (mni)</strong> — Ọmọ ile-iwe NIPSS, Kuru.</li><li><strong>Àṣojú Kariaye</strong> — Ti mọ gẹgẹ bi "Aami Ile Ilẹ-ède".</li>',
 'ceo-quote-text':'"Ni Emkay Surveys, a ṣafihan iṣootọ ọjọgbọn ati iran imọ-ẹrọ ti Surv. Amb. M.M. Kabir ṣe aṣáájú lori ipele kariaye."',
 'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ Títì'
@@ -1083,9 +1083,9 @@ zh:{flag:'🇨🇳',name:'中文',
 'ceo-bio-text-1':'在Emkay Surveys，我们对精准的承诺受到Surv. Amb. M.M Kabir全球标准和愿景的启发。作为国际地理空间社区的领军人物，他的工作确保非洲测量专业保持竞争力、创新性，并与世界一流实践接轨。',
 'ceo-bio-lbl-2':'推动非洲地理空间议程',
 'ceo-bio-text-2':'在监管领导领域拥有杰出职业生涯后，Surv. Amb. Kabir担任<strong>国际测量师联合会（FIG）非洲区域网络主席</strong>。在此职位上，他领导努力实现全大陆土地治理和专业标准的现代化。',
-'ceo-bio-lbl-3':'私营部门卓越愿景',
+'ceo-bio-lbl-3':'领导职务与联合国/全球参与',
 'ceo-achievements-1':'<li><strong>数字化转型：</strong>推动向ICT驱动的测量和GIS应用转变。</li><li><strong>能力建设：</strong>通过青年测量师网络指导下一代。</li><li><strong>国际合作：</strong>在高级别全球论坛上代表非洲利益。</li>',
-'ceo-bio-lbl-4':'专业荣誉',
+'ceo-bio-lbl-4':'奖项、荣誉与关键数据',
 'ceo-achievements-2':'<li><strong>尼日利亚测量师协会会士（fnis）</strong>——因终身贡献和技术精通而获奖。</li><li><strong>国家研究所成员（mni）</strong>——NIPSS、Kuru毕业生。</li><li><strong>全球大使</strong>——被认可为"国家建设的标志"。</li>',
 'ceo-quote-text':'"在Emkay Surveys，我们体现了Surv. Amb. M.M. Kabir在全球舞台上倡导的职业诚信和技术远见。"',
 'ceo-quote-cite':'— Emkay Surveys Nigeria Limited','ceo-close-btn':'✕ 关闭'
@@ -1898,8 +1898,8 @@ window.addEventListener('DOMContentLoaded', function(){
   function getCount() {
     var hour = new Date().getHours();
     // Higher during business hours
-    var base = (hour >= 9 && hour <= 17) ? 14 : 6;
-    return base + Math.floor(Math.random() * 7);
+    var base = (hour >= 9 && hour <= 17) ? 22 : 18;
+    return base + Math.floor(Math.random() * 9);
   }
 
   var numEl = document.getElementById('vc-num');
@@ -1907,10 +1907,20 @@ window.addEventListener('DOMContentLoaded', function(){
     numEl.textContent = getCount();
     // Subtle variation every 25–40 seconds
     setInterval(function(){
-      var curr = parseInt(numEl.textContent) || 10;
+      var curr = parseInt(numEl.textContent) || 20;
       var delta = Math.random() > 0.5 ? 1 : -1;
-      var next = Math.max(4, Math.min(30, curr + delta));
+      var next = Math.max(18, Math.min(40, curr + delta));
       numEl.textContent = next;
     }, 28000 + Math.random() * 12000);
   }
+})();
+
+// ── CINEMATIC SPLASH LOGO RING (inject wrapper dynamically) ───────
+(function(){
+  var logo = document.querySelector('#splash .splash-logo');
+  if (!logo) return;
+  var ring = document.createElement('div');
+  ring.className = 'splash-logo-ring';
+  logo.parentNode.insertBefore(ring, logo);
+  ring.appendChild(logo);
 })();
