@@ -214,7 +214,7 @@ async def chat(req: ChatRequest):
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 def root():
-    return FileResponse("frontend/index.html")
+    return FileResponse("static/index.html")
 
 
 @app.post(
