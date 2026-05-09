@@ -1456,6 +1456,45 @@ window.addEventListener('DOMContentLoaded', function(){
   }
 });
 
+// ── CEO BIO READ MORE / READ LESS (mobile only) ──────────────────
+window.addEventListener('DOMContentLoaded', function(){
+  if (window.innerWidth >= 900) return;
+  var bio = document.getElementById('ceo-bio');
+  if (!bio) return;
+  var sections = bio.querySelectorAll('.ceo-bio-section');
+  if (sections.length <= 2) return;
+
+  // Wrap sections 3+, quote and signature in a collapsible div
+  var more = document.createElement('div');
+  more.className = 'ceo-bio-more';
+
+  var toMove = [];
+  sections.forEach(function(s, i){ if (i >= 2) toMove.push(s); });
+  var quote   = bio.querySelector('.ceo-quote');
+  var sig     = bio.querySelector('.ceo-sig-wrap');
+
+  toMove.forEach(function(s){ more.appendChild(s); });
+  if (quote) more.appendChild(quote);
+  if (sig)   more.appendChild(sig);
+
+  sections[1].insertAdjacentElement('afterend', more);
+
+  // Read More button
+  var btn = document.createElement('button');
+  btn.className = 'ceo-read-more-btn';
+  btn.innerHTML = '<span class="rmb-text">Read More</span><span class="rmb-arrow">▾</span>';
+  more.insertAdjacentElement('beforebegin', btn);
+
+  btn.addEventListener('click', function(){
+    var expanded = more.classList.toggle('expanded');
+    btn.classList.toggle('expanded', expanded);
+    btn.querySelector('.rmb-text').textContent = expanded ? 'Read Less' : 'Read More';
+    if (expanded) {
+      setTimeout(function(){ more.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 100);
+    }
+  });
+});
+
 // ── SCROLL-TRIGGERED REVEAL ANIMATIONS ──────────────────────────────
 (function(){
   // Elements to reveal
@@ -1684,11 +1723,11 @@ window.addEventListener('DOMContentLoaded', function(){
     var line1 = 'Precision Surveys.';
     var line2 = 'Engineering Excellence.';
 
-    typeText(titleEl, line1, 65, function(){
+    typeText(titleEl, line1, 95, function(){
       titleEl.appendChild(document.createElement('br'));
       var em = document.createElement('em');
       titleEl.appendChild(em);
-      typeText(em, line2, 60, function(){
+      typeText(em, line2, 88, function(){
         setTimeout(animateStats, 400);
       });
     });
@@ -1741,4 +1780,137 @@ window.addEventListener('DOMContentLoaded', function(){
       el.style.transitionDelay = (row * 0.12 + col * 0.10) + 's';
     });
   });
+})();
+
+// ── 1. SCROLL PROGRESS BAR ───────────────────────────────────────
+(function(){
+  var bar = document.createElement('div');
+  bar.id = 'scroll-progress';
+  document.body.appendChild(bar);
+  window.addEventListener('scroll', function(){
+    var doc = document.documentElement;
+    var scrolled = doc.scrollTop || document.body.scrollTop;
+    var total = doc.scrollHeight - doc.clientHeight;
+    bar.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+  }, { passive: true });
+})();
+
+// ── 2. BACK TO TOP BUTTON ────────────────────────────────────────
+(function(){
+  var btn = document.createElement('button');
+  btn.id = 'back-to-top';
+  btn.innerHTML = '↑';
+  btn.title = 'Back to top';
+  document.body.appendChild(btn);
+  window.addEventListener('scroll', function(){
+    btn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  btn.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+
+// ── 3. ACTIVE NAV HIGHLIGHT ON SCROLL ───────────────────────────
+(function(){
+  var sections = document.querySelectorAll('section[id], div[id]');
+  var navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+  if (!navLinks.length) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        navLinks.forEach(function(a){
+          var match = a.getAttribute('href') === '#' + entry.target.id;
+          a.classList.toggle('nav-active', match);
+        });
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-60px 0px -40% 0px' });
+  sections.forEach(function(s){ obs.observe(s); });
+})();
+
+// ── 4. FORM SUCCESS TOAST ────────────────────────────────────────
+(function(){
+  var toast = document.createElement('div');
+  toast.id = 'form-toast';
+  document.body.appendChild(toast);
+
+  var _orig = window.showMsg;
+  window.showMsg = function(text, type){
+    if (_orig) _orig(text, type);
+    if (type === 'success') {
+      toast.textContent = '✓ ' + text;
+      toast.className = 'show';
+      clearTimeout(toast._t);
+      toast._t = setTimeout(function(){ toast.className = ''; }, 4000);
+    }
+  };
+})();
+
+// ── 5. LAZY LOAD IMAGES ──────────────────────────────────────────
+(function(){
+  var imgs = document.querySelectorAll('img:not([loading])');
+  imgs.forEach(function(img){
+    img.setAttribute('loading', 'lazy');
+  });
+})();
+
+// ── 6. CURSOR TRAIL ──────────────────────────────────────────────
+(function(){
+  if (window.matchMedia('(pointer: coarse)').matches) return; // skip touch
+  var dots = [], count = 10;
+  for (var i = 0; i < count; i++) {
+    var d = document.createElement('div');
+    d.className = 'cursor-trail';
+    d.style.opacity = (1 - i / count) * 0.6;
+    d.style.width = d.style.height = (8 - i * 0.6) + 'px';
+    document.body.appendChild(d);
+    dots.push({ el: d, x: 0, y: 0 });
+  }
+  var mx = 0, my = 0;
+  window.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; });
+  (function animate(){
+    var px = mx, py = my;
+    dots.forEach(function(dot, i){
+      dot.x += (px - dot.x) * (0.3 - i * 0.02);
+      dot.y += (py - dot.y) * (0.3 - i * 0.02);
+      dot.el.style.transform = 'translate(' + (dot.x - 4) + 'px,' + (dot.y - 4) + 'px)';
+      px = dot.x; py = dot.y;
+    });
+    requestAnimationFrame(animate);
+  })();
+})();
+
+// ── ANIMATED GRADIENT BORDER — CEO PHOTO ─────────────────────────
+// Handled purely in CSS via @property and conic-gradient animation.
+
+// ── VISITOR COUNTER ──────────────────────────────────────────────
+(function(){
+  var contactSection = document.getElementById('contact');
+  if (!contactSection) return;
+
+  // Create counter element
+  var counter = document.createElement('div');
+  counter.id = 'visitor-counter';
+  counter.innerHTML = '<span class="vc-dot"></span><span id="vc-text">Join <strong id="vc-num">--</strong> others enquiring today</span>';
+  contactSection.insertBefore(counter, contactSection.firstChild);
+
+  // Simulate a realistic visitor count (base + random variation)
+  function getCount() {
+    var hour = new Date().getHours();
+    // Higher during business hours
+    var base = (hour >= 9 && hour <= 17) ? 14 : 6;
+    return base + Math.floor(Math.random() * 7);
+  }
+
+  var numEl = document.getElementById('vc-num');
+  if (numEl) {
+    numEl.textContent = getCount();
+    // Subtle variation every 25–40 seconds
+    setInterval(function(){
+      var curr = parseInt(numEl.textContent) || 10;
+      var delta = Math.random() > 0.5 ? 1 : -1;
+      var next = Math.max(4, Math.min(30, curr + delta));
+      numEl.textContent = next;
+    }, 28000 + Math.random() * 12000);
+  }
 })();
