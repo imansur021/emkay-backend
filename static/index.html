@@ -731,6 +731,26 @@ body.light .map-tile{background:#fff;}
     .addTo(map)
     .bindPopup('<strong>Emkay Surveys</strong><br>201T Novare Central Mall<br>Wuse Zone 5, Abuja')
     .openPopup();
+
+  // The map container starts sr-hidden (invisible). Leaflet can't measure it
+  // until it's visible. Watch for sr-visible being added, then recalculate.
+  var container = document.getElementById('leaflet-map');
+  var sizeFixed = false;
+  var mo = new MutationObserver(function() {
+    if (!sizeFixed && container.closest('.sr-visible, :not(.sr-hidden)')) {
+      sizeFixed = true;
+      setTimeout(function(){ map.invalidateSize(); }, 50);
+      mo.disconnect();
+    }
+  });
+  mo.observe(document.querySelector('.map-frame-col') || container, { attributes: true, attributeFilter: ['class'] });
+
+  // Fallback: also fire on scroll/resize in case MutationObserver misses it
+  var fallback = function() {
+    if (!sizeFixed) { sizeFixed = true; map.invalidateSize(); }
+    window.removeEventListener('scroll', fallback);
+  };
+  window.addEventListener('scroll', fallback, { passive: true });
 })();
 </script>
 </body>
