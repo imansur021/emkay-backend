@@ -1684,15 +1684,15 @@ window.addEventListener('DOMContentLoaded', function(){
     var line1 = 'Precision Surveys.';
     var line2 = 'Engineering Excellence.';
 
-    typeText(titleEl, line1, 95, function(){
+    typeText(titleEl, line1, 8, function(){
       titleEl.appendChild(document.createElement('br'));
       var em = document.createElement('em');
       titleEl.appendChild(em);
-      typeText(em, line2, 88, function(){
+      typeText(em, line2, 8, function(){
         setTimeout(animateStats, 400);
       });
     });
-  }, 3600);
+  }, 5000);
 })();
 
 // ── NAV SHRINK ON SCROLL ─────────────────────────────────────────
