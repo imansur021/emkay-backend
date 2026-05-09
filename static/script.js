@@ -1558,8 +1558,8 @@ window.addEventListener('DOMContentLoaded', function(){
 
       var quoteText = quoteEl.textContent;
       var citeText  = citeEl ? citeEl.textContent : '';
-      var quoteSpeed = Math.max(18, Math.min(32, Math.round(3200 / quoteText.length)));
-      var citeSpeed  = Math.max(30, Math.min(60, Math.round(1200 / (citeText.length || 1))));
+      var quoteSpeed = Math.max(6, Math.min(10, Math.round(1000 / quoteText.length)));
+      var citeSpeed  = Math.max(14, Math.min(22, Math.round(600 / (citeText.length || 1))));
 
       // Step 1: typewrite quote
       typewrite(quoteEl, quoteText, quoteSpeed, function(){
