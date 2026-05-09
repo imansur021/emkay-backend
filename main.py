@@ -255,6 +255,11 @@ def submit_contact(payload: schemas.MessageCreate, db: Session = Depends(get_db)
 #  ADMIN ROUTES  (HTTP Basic Auth protected)
 # ═══════════════════════════════════════════════════════════════════════════
 
+@app.get("/", response_class=FileResponse, include_in_schema=False)
+def home():
+    return FileResponse("static/index.html")
+
+
 @app.get(
     "/admin",
     response_class=FileResponse,
