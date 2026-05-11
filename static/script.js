@@ -2000,40 +2000,98 @@ window.addEventListener('DOMContentLoaded', function(){
   });
 })();
 
-// ── FLOATING PARTICLES — HERO ────────────────────────────────────
+// ── FLOATING PARTICLES — HERO (canvas) ───────────────────────────
 (function(){
   var hero = document.getElementById('hero');
   if (!hero) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  var container = document.createElement('div');
-  container.id = 'hero-particles';
-  hero.insertBefore(container, hero.firstChild);
+  var canvas = document.createElement('canvas');
+  canvas.id = 'hero-particles';
+  canvas.setAttribute('aria-hidden', 'true');
+  hero.insertBefore(canvas, hero.firstChild);
 
-  var count = 22;
-  for (var i = 0; i < count; i++) {
-    var p = document.createElement('div');
-    p.className = 'hp';
-    var size   = (2 + Math.random() * 3.5).toFixed(1);
-    var left   = (Math.random() * 100).toFixed(1);
-    var dur    = (4 + Math.random() * 6).toFixed(1);
-    var delay  = (Math.random() * 6).toFixed(1);
-    var rise   = -(80 + Math.random() * 160).toFixed(0) + 'px';
-    var drift  = ((Math.random() - 0.5) * 60).toFixed(0) + 'px';
-    var op     = (0.12 + Math.random() * 0.28).toFixed(2);
-    p.style.cssText = [
-      'width:'  + size + 'px',
-      'height:' + size + 'px',
-      'left:'   + left + '%',
-      'bottom:' + (Math.random() * 30).toFixed(1) + '%',
-      '--dur:'   + dur   + 's',
-      '--delay:' + delay + 's',
-      '--rise:'  + rise,
-      '--drift:' + drift,
-      '--op:'    + op,
-    ].join(';');
-    container.appendChild(p);
+  var ctx = canvas.getContext('2d');
+  var COLORS = ['#2d8c42','#3daa55','#a8e6b4','#5ec87a','#1a5c2e','#7fd495'];
+  var W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
   }
+
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  function makeParticle(init) {
+    var angle = rnd(0, Math.PI * 2);
+    var spd   = rnd(0.18, 0.45);
+    return {
+      x:     rnd(0, W),
+      y:     init ? rnd(0, H) : (Math.random() > 0.5 ? -10 : H + 10),
+      vx:    Math.cos(angle) * spd,
+      vy:    Math.sin(angle) * spd,
+      r:     rnd(1, 3),
+      alpha: rnd(0.35, 0.85),
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      pulse: rnd(0, Math.PI * 2)
+    };
+  }
+
+  function init() {
+    resize();
+    particles = [];
+    for (var i = 0; i < 80; i++) particles.push(makeParticle(true));
+  }
+
+  function drawLines() {
+    var maxD = 120;
+    for (var i = 0; i < particles.length; i++) {
+      for (var j = i + 1; j < particles.length; j++) {
+        var dx = particles[i].x - particles[j].x;
+        var dy = particles[i].y - particles[j].y;
+        var d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < maxD) {
+          ctx.save();
+          ctx.globalAlpha = (1 - d / maxD) * 0.22;
+          ctx.strokeStyle = '#2d8c42';
+          ctx.lineWidth   = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    }
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    drawLines();
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.pulse += 0.022;
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) {
+        particles[i] = makeParticle(false);
+        continue;
+      }
+      var r = p.r * (1 + 0.15 * Math.sin(p.pulse));
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle   = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', init);
+  init();
+  loop();
 })();
 
 // ── INPUT SHAKE ON VALIDATION ERROR ─────────────────────────────
